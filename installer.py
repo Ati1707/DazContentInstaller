@@ -1,13 +1,13 @@
 import os
+from turtle import TurtleGraphicsError
+
 import patoolib
 import shutil
 import configparser
-import time
 
 config = configparser.ConfigParser()
 
 config.read("config.ini")
-
 library_path = config["PATH"]["LibraryPath"]
 
 download_folder = 'downloads/'  # Change this to your specific folder
@@ -40,6 +40,7 @@ def extract_all_archives():
 
 
 def extract_archives(folder_path):
+    archive_extracted = False
     for root, dirs, files in os.walk(folder_path):
         if any(target in root for target in target_folders):
             continue
@@ -60,6 +61,10 @@ def extract_archives(folder_path):
                 patoolib.extract_archive(file_path, outdir=root, verbosity= -1)
                 #time.sleep(0.2)
                 os.remove(file_path)  # Delete the archive
+                archive_extracted = True
+        if archive_extracted:
+            archive_extracted = False
+            return extract_archives(folder_path)
 
 
 def clean_directory(directory_path):
@@ -90,5 +95,5 @@ def import_to_library():
 
 extract_all_archives()
 extract_archives(temp_folder)
-clean_directory(temp_folder)
-import_to_library()
+#clean_directory(temp_folder)
+#import_to_library()
