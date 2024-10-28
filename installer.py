@@ -13,6 +13,12 @@ library_path = config["PATH"]["LibraryPath"]
 download_folder = 'downloads/'  # Change this to your specific folder
 temp_folder = 'temp/'
 
+if not os.path.exists(download_folder):
+    os.makedirs(download_folder)
+
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
+
 # Define the target folders
 target_folders = [
     "aniBlocks", "data", "Environments", "Light Presets", "People",
@@ -57,10 +63,6 @@ def extract_archives(folder_path):
 
 
 def clean_directory(directory_path):
-    """
-    Remove every folder and file in the specified directory
-    that isn't one of the target folders.
-    """
     # Ensure target_folders are treated as absolute paths for comparison
     target_folders_set = set(target_folders)
 
@@ -79,6 +81,14 @@ def clean_directory(directory_path):
             print(f'Removing file: {item_path}')
             os.remove(item_path)
 
+def import_to_library():
+    for item in os.listdir(temp_folder):
+        item_path = os.path.join(temp_folder, item)
+        dest_path = os.path.join(library_path, item)
+        shutil.move(item_path, dest_path)
+        print(f'Moved {item_path} to {dest_path}')
+
 extract_all_archives()
 extract_archives(temp_folder)
 clean_directory(temp_folder)
+import_to_library()
