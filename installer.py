@@ -1,6 +1,6 @@
-import os
-from turtle import TurtleGraphicsError
+import patches # Needed to apply monkey pathing
 
+import os
 import patoolib
 import shutil
 import configparser
@@ -96,4 +96,4 @@ def import_to_library():
 extract_all_archives()
 extract_archives(temp_folder)
 clean_directory(temp_folder)
-import_to_library()
+#import_to_library()
