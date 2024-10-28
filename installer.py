@@ -90,10 +90,10 @@ def import_to_library():
     for item in os.listdir(temp_folder):
         item_path = os.path.join(temp_folder, item)
         dest_path = os.path.join(library_path, item)
-        shutil.move(item_path, dest_path)
+        shutil.copytree(item_path, dest_path, dirs_exist_ok=True)
         print(f'Moved {item_path} to {dest_path}')
 
 extract_all_archives()
 extract_archives(temp_folder)
-#clean_directory(temp_folder)
-#import_to_library()
+clean_directory(temp_folder)
+import_to_library()
