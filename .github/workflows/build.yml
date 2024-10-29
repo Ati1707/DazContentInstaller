@@ -27,14 +27,14 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile main.py
+          pyinstaller --onefile main.py --name DazContentInstaller
 
       - name: Prepare files for packaging
         run: |
           mkdir -p dist/DazContentInstaller  # Create a package directory
           cp -r downloads dist/DazContentInstaller/  # Copy downloads folder
           cp config.ini dist/DazContentInstaller/  # Copy config.ini file
-          cp dist/installer.exe dist/DazContentInstaller/  # Move the built binary
+          cp dist/DazContentInstaller.exe dist/DazContentInstaller/  # Move the built binary
 
       - name: Create zip file
         run: |
