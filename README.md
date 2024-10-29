@@ -13,7 +13,7 @@ More can be added if needed but I only encountered these
 ## Usage
 
 You can either get the prebuild [Release](https://github.com/Ati1707/DazContentInstaller/releases)  
-Or clone the repo and install the requirements to run it with python
+Or clone the repo and install the requirements to run the main file with python
 
 **USE A SEPARATE LIBRARY FOLDER BECAUSE THIS TOOL IS NOT STABLE YET!!!!**
 
