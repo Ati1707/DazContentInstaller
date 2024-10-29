@@ -1,0 +1,47 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.3.0
+        with:
+          python-version: '>=3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install pyinstaller -r requirements.txt
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --onefile installer.py
+
+      - name: Prepare files for packaging
+        run: |
+          mkdir -p dist/DazContentInstaller  # Create a package directory
+          cp -r downloads dist/DazContentInstaller/  # Copy downloads folder
+          cp config.ini dist/DazContentInstaller/  # Copy config.ini file
+          cp dist/installer.exe dist/DazContentInstaller/  # Move the built binary
+
+      - name: Create zip file
+        run: |
+          Compress-Archive -Path dist/DazContentInstaller -DestinationPath dist/DazContentInstaller.zip
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: build
+          path: dist/DazContentInstaller.zip
