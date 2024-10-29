@@ -70,7 +70,7 @@ def extract_archive(item):
         if item.endswith(('.zip', '.rar', '7z', '.tar')):
             print(f"Extracting: {item}")
             try:
-                patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1, interactive=False)
+                patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1, interactive=False, program="7z/7za.exe")
                 time.sleep(1)
                 return True
             except PatoolError:
@@ -115,7 +115,7 @@ def traverse_directory(folder_path, current_item):
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             if file.endswith(('.zip', '.rar', '7z', '.tar')):
-                patoolib.extract_archive(os.path.join(str(root), file), outdir=root, verbosity= -1, interactive=False)
+                patoolib.extract_archive(os.path.join(str(root), file), outdir=root, verbosity= -1, interactive=False, program="7z/7za.exe")
                 time.sleep(0.5)
                 os.remove(os.path.join(root, file))
                 archive_extracted = True
