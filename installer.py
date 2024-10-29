@@ -1,97 +1,86 @@
+from patoolib.util import PatoolError
+
 import patches # Needed to apply monkey pathing
 
+class Bcolors:
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+import sys
 import os
+import time
 import patoolib
 import shutil
 import configparser
+
+download_folder = 'downloads/'
+temp_folder = 'temp/'
+
+if not os.path.exists(download_folder):
+    os.makedirs(download_folder)
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
 
 config = configparser.ConfigParser()
 
 config.read("config.ini")
 library_path = config["PATH"]["LibraryPath"]
 
-download_folder = 'downloads/'  # Change this to your specific folder
-temp_folder = 'temp/'
-
-if not os.path.exists(download_folder):
-    os.makedirs(download_folder)
-
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
+if not library_path or library_path == "Y:\\example":
+    print("You need to set a asset library path in the config.ini")
+    print("Create a new folder don't use an existing folder")
+    print("This tool is not stable yet!!! Data loss can occur if you use an existing folder")
+    sys.exit(0)
 
 # Define the target folders
 target_folders = [
     "aniBlocks", "data", "Environments", "Light Presets", "People",
     "Props", "ReadMe's", "Render Presets", "Render Settings", "Runtime",
-    "Scenes", "Scripts", "Shader Presets"
+    "Scenes", "Scripts", "Shader Presets", "Cameras"
 ]
 
+def clean_temp_folder():
+    shutil.rmtree(temp_folder)
+    os.makedirs(temp_folder)
 
-
-# Specify the base folder to start extracting from
-
-def extract_all_archives():
-    for item in os.listdir(download_folder):
+def extract_archive(item):
         item_path = os.path.join(download_folder, item)
-        if item.endswith(('.zip', '.rar')):
+        if item.endswith(('.zip', '.rar', '7z', '.tar')):
             print(f"Extracting: {item}")
-            patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1)
+            try:
+                patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1)
+                time.sleep(1)
+                return True
+            except:
+                print(f"{Bcolors.FAIL}The archive {item} can not be extracted{Bcolors.ENDC}")
+                return False
 
-
-def extract_archives(folder_path):
-    archive_extracted = False
+def traverse_directory(folder_path):
     for root, dirs, files in os.walk(folder_path):
-        if any(target in root for target in target_folders):
-            continue
-        for target in dirs:
-            if target in target_folders:
-                target_path = os.path.join(root, target)
-                if not any(target_path.startswith(f"temp/{folder}") for folder in target_folders):
-                    shutil.copytree(root, folder_path, dirs_exist_ok=True)
-                    shutil.rmtree(root)
-                    return extract_archives(folder_path)
-
+        if any(target in dirs for target in target_folders):
+            shutil.copytree(root, library_path, dirs_exist_ok=True)
+            return True
         for file in files:
-            file_path = os.path.join(root, file)
+            if file.endswith(('.zip', '.rar', '7z', '.tar')):
+                patoolib.extract_archive(os.path.join(str(root), file), outdir=root, verbosity= -1)
+                time.sleep(1)
+                os.remove(os.path.join(root, file))
+                return traverse_directory(folder_path)
+    return False
 
-            # Check for zip and rar files
-            if file.endswith(('.zip', '.rar')):
-                print(f'Extracting {file_path}')
-                patoolib.extract_archive(file_path, outdir=root, verbosity= -1)
-                #time.sleep(0.2)
-                os.remove(file_path)  # Delete the archive
-                archive_extracted = True
-        if archive_extracted:
-            return extract_archives(folder_path)
-
-
-def clean_directory(directory_path):
-    # Ensure target_folders are treated as absolute paths for comparison
-    target_folders_set = set(target_folders)
-
-    # Traverse the directory
-    for item in os.listdir(directory_path):
-        item_path = os.path.join(directory_path, item)
-
-        # Check if the item is a directory
-        if os.path.isdir(item_path):
-            # Remove the directory if it's not a target folder
-            if item not in target_folders_set:
-                print(f'Removing directory: {item_path}')
-                shutil.rmtree(item_path)
-        else:
-            # Remove the file if it's not in a target folder
-            print(f'Removing file: {item_path}')
-            os.remove(item_path)
-
-def import_to_library():
-    for item in os.listdir(temp_folder):
-        item_path = os.path.join(temp_folder, item)
-        dest_path = os.path.join(library_path, item)
-        shutil.copytree(item_path, dest_path, dirs_exist_ok=True)
-        print(f'Moved {item_path} to {dest_path}')
-
-extract_all_archives()
-extract_archives(temp_folder)
-clean_directory(temp_folder)
-import_to_library()
+clean_temp_folder()
+for current_item in os.listdir(download_folder):
+    if not extract_archive(current_item):
+        clean_temp_folder()
+        continue
+    if traverse_directory(temp_folder):
+        print(f"{Bcolors.OKGREEN}{current_item} was successfully imported to your library{Bcolors.ENDC}")
+    else:
+        print(f"{Bcolors.WARNING}{current_item} can not be automatically imported because it doesn't have the right folder structure{Bcolors.ENDC}")
+        print(f"{Bcolors.WARNING}You need to do it manually{Bcolors.ENDC}")
+    clean_temp_folder()
