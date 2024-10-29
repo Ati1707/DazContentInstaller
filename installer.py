@@ -4,6 +4,7 @@ import time
 import shutil
 import configparser
 import re
+
 import patoolib
 
 from patoolib.util import PatoolError
@@ -31,6 +32,12 @@ if not os.path.exists(temp_folder):
 config = configparser.ConfigParser()
 config.read("config.ini")
 library_path = config["PATH"]["LibraryPath"]
+
+if getattr(sys, "frozen", False):
+    base_path = sys._MEIPASS
+else:
+    base_path = os.path.dirname(__file__)
+seven_zip_path = os.path.join(base_path, "7z\\7za.exe")
 
 if not library_path or library_path == "example":
     print(f"{Bcolors.WARNING}You need to set a asset library path in the config.ini{Bcolors.ENDC}")
@@ -70,7 +77,7 @@ def extract_archive(item):
         if item.endswith(('.zip', '.rar', '7z', '.tar')):
             print(f"Extracting: {item}")
             try:
-                patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1, interactive=False, program="7z/7za.exe")
+                patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1, interactive=False, program=seven_zip_path)
                 time.sleep(1)
                 return True
             except PatoolError:
@@ -115,7 +122,7 @@ def traverse_directory(folder_path, current_item):
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             if file.endswith(('.zip', '.rar', '7z', '.tar')):
-                patoolib.extract_archive(os.path.join(str(root), file), outdir=root, verbosity= -1, interactive=False, program="7z/7za.exe")
+                patoolib.extract_archive(os.path.join(str(root), file), outdir=root, verbosity= -1, interactive=False, program=seven_zip_path)
                 time.sleep(0.5)
                 os.remove(os.path.join(root, file))
                 archive_extracted = True
