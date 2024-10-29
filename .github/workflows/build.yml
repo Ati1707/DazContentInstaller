@@ -27,7 +27,7 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile installer.py
+          pyinstaller --onefile main.py
 
       - name: Prepare files for packaging
         run: |
