@@ -31,7 +31,7 @@ config = configparser.ConfigParser()
 config.read("config.ini")
 library_path = config["PATH"]["LibraryPath"]
 
-if not library_path or library_path == "Y:\\example":
+if not library_path or library_path == "example":
     print(f"{Bcolors.WARNING}You need to set a asset library path in the config.ini{Bcolors.ENDC}")
     print(f"{Bcolors.WARNING}Create a new folder don't use an existing folder{Bcolors.ENDC}")
     print(f"{Bcolors.WARNING}This tool is not stable yet!!! Data loss can occur if you use an existing folder{Bcolors.ENDC}")
