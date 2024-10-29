@@ -3,6 +3,8 @@ Automates the process to install third-party content
 
 ## Requirements
 
+WINDOWS ONLY!
+
 Download 7z https://www.7-zip.org/  
 I only tested the tool on that backend the others might work as well  
 The tool only supports zip and rar archives at the moment
