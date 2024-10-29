@@ -1,6 +1,14 @@
-from patoolib.util import PatoolError
+import sys
+import os
+import time
+import shutil
+import configparser
 
-import patches # Needed to apply monkey pathing
+from patoolib.util import PatoolError
+import patoolib
+
+import patches # Needed to apply monkey patching
+
 
 class Bcolors:
     OKGREEN = '\033[92m'
@@ -9,14 +17,6 @@ class Bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-
-
-import sys
-import os
-import time
-import patoolib
-import shutil
-import configparser
 
 download_folder = 'downloads/'
 temp_folder = 'temp/'
@@ -56,7 +56,7 @@ def extract_archive(item):
                 patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1, interactive=False)
                 time.sleep(1)
                 return True
-            except:
+            except PatoolError:
                 print(f"{Bcolors.FAIL}The archive {item} can not be extracted{Bcolors.ENDC}")
                 return False
 
