@@ -61,10 +61,10 @@ def extract_archive(item):
                 return False
 
 # Removes everything in temp folder that is not one of the target folders before importing to library
-def clean_folder():
+def clean_folder(folder_path):
     targets = [folder for folder in target_folders]
 
-    for item in os.listdir(temp_folder):
+    for item in os.listdir(folder_path):
         item_path = os.path.join(temp_folder, item)
 
         # If it's a folder and not in target folders, delete it
@@ -91,7 +91,8 @@ def traverse_directory(folder_path):
         if archive_extracted:
             return traverse_directory(folder_path)
         if any(target in dirs for target in target_folders):
-            clean_folder()
+            clean_folder(root)
+
             shutil.copytree(root, library_path, dirs_exist_ok=True)
             return True
     return False
@@ -107,3 +108,7 @@ for current_item in os.listdir(download_folder):
         print(f"{Bcolors.WARNING}{current_item} can not be automatically imported because it doesn't have the right folder structure{Bcolors.ENDC}")
         print(f"{Bcolors.WARNING}You need to do it manually{Bcolors.ENDC}")
     clean_temp_folder()
+
+print("Finished importing every asset")
+print("Tool exiting in 5 seconds....")
+time.sleep(5)
