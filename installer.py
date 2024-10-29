@@ -87,12 +87,10 @@ def clean_folder(folder_path):
         # If it's a folder and not in target folders, delete it
         if os.path.isdir(item_path) and item not in targets:
             shutil.rmtree(item_path)
-            print(f"Deleted folder: {item_path}")
 
         # If it's a file, delete it
         elif os.path.isfile(item_path):
             os.remove(item_path)
-            print(f"Deleted file: {item_path}")
 
 def add_to_database(root_path, item):
     archive_name = item.split(".")[0]
