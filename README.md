@@ -15,7 +15,7 @@ More can be added if needed but I only encountered these
 You can either get the prebuild [Release](https://github.com/Ati1707/DazContentInstaller/releases)  
 Or clone the repo and install the requirements to run it with python
 
-**CREATE A SEPARATE LIBRARY FOLDER BECAUSE THIS TOOL IS NOT STABLE YET!!!!**
+**USE A SEPARATE LIBRARY FOLDER BECAUSE THIS TOOL IS NOT STABLE YET!!!!**
 
 1. Change library path in the config file. I only put a placeholder in it
 2. Put the downloaded assets in the downloads folder(The assets must be archives)
