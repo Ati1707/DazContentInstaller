@@ -1,12 +1,11 @@
 # DazContentInstaller
-Automates the process to install third-party content
+WINDOWS ONLY!  
+Automates the process to install third-party content  
 
-## Requirements
 
-WINDOWS ONLY!
+7-Zip is included with the repo.  
+No changes were made the standalone version got directly pulled from [https://www.7-zip.org/](https://www.7-zip.org)  
 
-Download 7z https://www.7-zip.org/  
-I only tested the tool on that backend the others might work as well  
 The tool only supports zip, rar, tar and 7z archives at the moment  
 More can be added if needed but I only encountered these
 
