@@ -34,9 +34,8 @@ def extract_all_archives():
     for item in os.listdir(download_folder):
         item_path = os.path.join(download_folder, item)
         if item.endswith(('.zip', '.rar')):
-            print(f"Extracting: {item_path}")
+            print(f"Extracting: {item}")
             patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1)
-            #time.sleep(0.5)
 
 
 def extract_archives(folder_path):
@@ -63,7 +62,6 @@ def extract_archives(folder_path):
                 os.remove(file_path)  # Delete the archive
                 archive_extracted = True
         if archive_extracted:
-            archive_extracted = False
             return extract_archives(folder_path)
 
 
@@ -96,4 +94,4 @@ def import_to_library():
 extract_all_archives()
 extract_archives(temp_folder)
 clean_directory(temp_folder)
-#import_to_library()
+import_to_library()
