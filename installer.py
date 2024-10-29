@@ -9,7 +9,7 @@ import patoolib
 
 import patches # Needed to apply monkey patching
 
-
+# Class to create colored output
 class Bcolors:
     OKGREEN = '\033[92m'
     WARNING = '\033[93m'
@@ -27,7 +27,6 @@ if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
 
 config = configparser.ConfigParser()
-
 config.read("config.ini")
 library_path = config["PATH"]["LibraryPath"]
 
@@ -48,6 +47,7 @@ def clean_temp_folder():
     shutil.rmtree(temp_folder)
     os.makedirs(temp_folder)
 
+# Extract archives in the download folder and move content to temp folder
 def extract_archive(item):
         item_path = os.path.join(download_folder, item)
         if item.endswith(('.zip', '.rar', '7z', '.tar')):
@@ -60,10 +60,10 @@ def extract_archive(item):
                 print(f"{Bcolors.FAIL}The archive {item} can not be extracted{Bcolors.ENDC}")
                 return False
 
+# Removes everything in temp folder that is not one of the target folders before importing to library
 def clean_folder():
     targets = [folder for folder in target_folders]
 
-    # Walk through the directory
     for item in os.listdir(temp_folder):
         item_path = os.path.join(temp_folder, item)
 
@@ -78,6 +78,7 @@ def clean_folder():
             print(f"Deleted file: {item_path}")
 
 
+# Searching the content of extracted archive for target folders
 def traverse_directory(folder_path):
     archive_extracted = False
     for root, dirs, files in os.walk(folder_path):
