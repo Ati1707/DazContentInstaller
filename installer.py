@@ -3,10 +3,12 @@ import os
 import time
 import shutil
 import configparser
-
-from patoolib.util import PatoolError
+import re
 import patoolib
 
+from patoolib.util import PatoolError
+
+import content_database
 import patches # Needed to apply monkey patching
 
 # Class to create colored output
@@ -43,6 +45,21 @@ target_folders = [
     "Scenes", "Scripts", "Shader Presets", "Cameras", "Documentation"
 ]
 
+
+def get_relative_path(full_path):
+    # Join all target folders into a regex pattern, escaping special characters if any
+    pattern = r'|'.join([re.escape(folder) for folder in target_folders])
+
+    # Search for the first occurrence of any target folder in the path
+    match = re.search(pattern, full_path)
+
+    # If a match is found, extract the path from the target folder onward
+    if match:
+        start_index = match.start()  # Get the starting index of the match
+        return full_path[start_index:]  # Return substring from target folder onward
+    else:
+        return full_path  # Return original path if no target folder is found
+
 def clean_temp_folder():
     shutil.rmtree(temp_folder)
     os.makedirs(temp_folder)
@@ -77,9 +94,25 @@ def clean_folder(folder_path):
             os.remove(item_path)
             print(f"Deleted file: {item_path}")
 
+def add_to_database(root_path, item):
+    archive_name = item.split(".")[0]
+    file_list = []
+
+    # Traverse through all files in the directory
+    for item in os.listdir(root_path):
+        for root, dir, files in os.walk(os.path.join(root_path, item)):
+            if files:
+                for file in files:
+                    file_list.append(os.path.join(get_relative_path(root), file))
+    if content_database.archive_exist(archive_name, file_list):
+        return True
+    print(f"Archive '{archive_name}' added to the database with {len(file_list)} files.")
+    content_database.add_archive(archive_name, file_list)
+    content_database.get_archives()
+
 
 # Searching the content of extracted archive for target folders
-def traverse_directory(folder_path):
+def traverse_directory(folder_path, current_item):
     archive_extracted = False
     for root, dirs, files in os.walk(folder_path):
         for file in files:
@@ -89,26 +122,29 @@ def traverse_directory(folder_path):
                 os.remove(os.path.join(root, file))
                 archive_extracted = True
         if archive_extracted:
-            return traverse_directory(folder_path)
+            return traverse_directory(folder_path, current_item)
         if any(target in dirs for target in target_folders):
             clean_folder(root)
-
+            if add_to_database(root, current_item):
+                return False
             shutil.copytree(root, library_path, dirs_exist_ok=True)
             return True
     return False
 
-clean_temp_folder()
-for current_item in os.listdir(download_folder):
-    if not extract_archive(current_item):
-        clean_temp_folder()
-        continue
-    if traverse_directory(temp_folder):
-        print(f"{Bcolors.OKGREEN}{current_item} was successfully imported to your library{Bcolors.ENDC}")
-    else:
-        print(f"{Bcolors.WARNING}{current_item} can not be automatically imported because it doesn't have the right folder structure{Bcolors.ENDC}")
-        print(f"{Bcolors.WARNING}You need to do it manually{Bcolors.ENDC}")
+def start_installer():
     clean_temp_folder()
+    for current_item in os.listdir(download_folder):
+        if not extract_archive(current_item):
+            clean_temp_folder()
+            continue
+        if traverse_directory(temp_folder, current_item):
+            print(f"{Bcolors.OKGREEN}{current_item} was successfully imported to your library{Bcolors.ENDC}")
+        else:
+            print(
+                f"{Bcolors.WARNING}{current_item} can not be automatically imported because it doesn't have the right folder structure{Bcolors.ENDC}")
+            print(f"{Bcolors.WARNING}or the archive already exists in the database{Bcolors.ENDC}")
+        clean_temp_folder()
 
-print("Finished importing every asset")
-print("Tool exiting in 5 seconds....")
-time.sleep(5)
+    print("Finished importing every asset")
+    print("Tool exiting in 3 seconds....")
+    time.sleep(3)
