@@ -32,7 +32,7 @@ jobs:
       - name: Prepare files for packaging
         run: |
           mkdir -p dist/DazContentInstaller  # Create a package directory
-          cp -r downloads dist/DazContentInstaller/  # Copy downloads folder
+          mkdir -p dist/DazContentInstaller/downloads
           cp config.ini dist/DazContentInstaller/  # Copy config.ini file
           cp dist/DazContentInstaller.exe dist/DazContentInstaller/  # Move the built binary
 
