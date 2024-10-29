@@ -108,7 +108,7 @@ def add_to_database(root_path, item):
         return True
     print(f"Archive '{archive_name}' added to the database with {len(file_list)} files.")
     content_database.add_archive(archive_name, file_list)
-    content_database.get_archives()
+    time.sleep(1)
 
 
 # Searching the content of extracted archive for target folders
