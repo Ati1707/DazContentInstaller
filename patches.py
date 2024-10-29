@@ -1,5 +1,3 @@
-import os
-
 from patoolib.util import *
 from patoolib.mime import *
 
