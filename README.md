@@ -9,7 +9,7 @@ The tool only supports zip and rar archives at the moment
 
 ## Usage
 
-You can either get the prebuild release [Release](https://github.com/Ati1707/DazContentInstaller/releases)  
+You can either get the prebuild [Release](https://github.com/Ati1707/DazContentInstaller/releases)  
 Or clone the repo and install the requirements to run it with python
 
 **CREATE A SEPARATE LIBRARY FOLDER BECAUSE THIS TOOL IS NOT TESTED!!!!**
