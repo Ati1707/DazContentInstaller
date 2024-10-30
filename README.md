@@ -21,3 +21,7 @@ Or clone the repo and install the requirements to run the main file with python
 
 
 After the content got imported you can delete the archives in the downloads folder if they got successfully imported
+
+## Showcase
+
+<video src="https://github.com/user-attachments/assets/8c108a28-fe2d-4e1f-b418-8d207f7167f8"/>
