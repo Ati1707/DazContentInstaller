@@ -25,4 +25,4 @@ To use the debug mode, open the Command Prompt, drag and drop the binary into th
 
 ## Showcase
 
-<video src="https://github.com/user-attachments/assets/8c108a28-fe2d-4e1f-b418-8d207f7167f8"/>
+<video src="https://github.com/user-attachments/assets/5170f047-99c4-4373-a2e8-0dd8b0640c3a"/>
