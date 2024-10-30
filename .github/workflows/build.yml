@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - debug
   pull_request:
     branches:
       - main
@@ -29,19 +30,18 @@ jobs:
         run: |
           pyinstaller --add-binary "7z/7z.exe;7z" --onefile main.py --name DazContentInstaller
 
-      - name: Prepare files for packaging
-        run: |
-          mkdir -p dist/DazContentInstaller  # Create a package directory
-          mkdir -p dist/DazContentInstaller/downloads
-          cp config.ini dist/DazContentInstaller/  # Copy config.ini file
-          cp dist/DazContentInstaller.exe dist/DazContentInstaller/  # Move the built binary
+      - name: Create package directory
+        run: mkdir -p dist/DazContentInstaller
+        
+      - name: Copy config.ini file
+        run: cp config.ini dist/DazContentInstaller/
 
-      - name: Create zip file
-        run: |
-          Compress-Archive -Path dist/DazContentInstaller -DestinationPath dist/DazContentInstaller.zip
+      - name: Move the built binary
+        run: mv dist/DazContentInstaller.exe dist/DazContentInstaller/
+
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4.4.3
         with:
-          name: build
-          path: dist/DazContentInstaller.zip
+          name: DazContentInstaller
+          path: dist/
