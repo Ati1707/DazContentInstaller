@@ -37,7 +37,7 @@ if getattr(sys, "frozen", False):
     base_path = sys._MEIPASS
 else:
     base_path = os.path.dirname(__file__)
-seven_zip_path = os.path.join(base_path, "7z\\7za.exe")
+seven_zip_path = os.path.join(base_path, "7z\\7z.exe")
 
 if not library_path or library_path == "example":
     print(f"{Bcolors.WARNING}You need to set a asset library path in the config.ini{Bcolors.ENDC}")
