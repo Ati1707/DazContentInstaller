@@ -1,5 +1,6 @@
 import os
 import time
+import sys
 from pick import pick
 from content_database import start_database
 from installer import start_installer
@@ -14,13 +15,15 @@ def main():
         time.sleep(2)
         os.system("cls")
         return main()
-
     title = 'Please select an option.\nPress q to exit'
     options = ["1. Start the installer", "2. Delete an asset from the library"]
     option, index = pick(options, title,indicator="=>", quit_keys=QUIT_KEYS)
     match index:
         case 0:
-            start_installer()
+            if len(sys.argv) > 1 and sys.argv[1].lower() == "debug":
+                start_installer(True)
+            else:
+                start_installer()
         case 1:
             try:
                 start_database()

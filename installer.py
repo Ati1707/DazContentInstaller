@@ -67,12 +67,15 @@ def clean_temp_folder():
     os.makedirs(temp_folder)
 
 # Extract archives in the download folder and move content to temp folder
-def extract_archive(item):
+def extract_archive(item, is_debug_mode):
         item_path = os.path.join(download_folder, item)
         if item.lower().endswith(('.zip', '.rar', '7z', '.tar')):
             print(f"Extracting: {item}")
             try:
-                patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1, interactive=False, program=seven_zip_path)
+                if is_debug_mode:
+                    patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= 2, interactive=False, program=seven_zip_path)
+                else:
+                    patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1, interactive=False, program=seven_zip_path)
                 time.sleep(1)
                 return True
             except PatoolError:
@@ -112,12 +115,17 @@ def add_to_database(root_path, item):
 
 
 # Searching the content of extracted archive for target folders
-def traverse_directory(folder_path, current_item):
+def traverse_directory(folder_path, current_item, is_debug_mode):
     archive_extracted = False
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             if file.lower().endswith(('.zip', '.rar', '7z', '.tar')):
-                patoolib.extract_archive(os.path.join(str(root), file), outdir=root, verbosity= -1, interactive=False, program=seven_zip_path)
+                if is_debug_mode:
+                    patoolib.extract_archive(os.path.join(str(root), file), outdir=root, verbosity=2,
+                                             interactive=False, program=seven_zip_path)
+                else:
+                    patoolib.extract_archive(os.path.join(str(root), file), outdir=root, verbosity=-1,
+                                             interactive=False, program=seven_zip_path)
                 time.sleep(0.5)
                 os.remove(os.path.join(root, file))
                 archive_extracted = True
@@ -131,13 +139,13 @@ def traverse_directory(folder_path, current_item):
             return True
     return False
 
-def start_installer():
+def start_installer(is_debug_mode=False):
     clean_temp_folder()
     for current_item in os.listdir(download_folder):
-        if not extract_archive(current_item):
+        if not extract_archive(current_item, is_debug_mode):
             clean_temp_folder()
             continue
-        if traverse_directory(temp_folder, current_item):
+        if traverse_directory(temp_folder, current_item, is_debug_mode):
             print(f"{Bcolors.OKGREEN}{current_item} was successfully imported to your library{Bcolors.ENDC}")
         else:
             print(
