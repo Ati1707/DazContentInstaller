@@ -24,11 +24,6 @@ class Bcolors:
 download_folder = 'downloads/'
 temp_folder = 'temp/'
 
-if not os.path.exists(download_folder):
-    os.makedirs(download_folder)
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
-
 config = configparser.ConfigParser()
 config.read("config.ini")
 library_path = config["PATH"]["LibraryPath"]

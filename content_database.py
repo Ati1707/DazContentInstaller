@@ -11,33 +11,10 @@ config = configparser.ConfigParser()
 config.read("config.ini")
 library_path = config["PATH"]["LibraryPath"]
 
-if not os.path.exists("database/"):
-    os.makedirs("database/")
-
-# Connect to SQLite database (it will create the database file if it doesn't exist)
-conn = sqlite3.connect('database/archives.db')
-cursor = conn.cursor()
-cursor.execute('PRAGMA foreign_keys = ON')
-conn.commit()
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS archives (
-        id INTEGER PRIMARY KEY,
-        archive_name TEXT NOT NULL
-    )
-''')
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS files (
-        id INTEGER PRIMARY KEY,
-        archive_id INTEGER,
-        file_name TEXT NOT NULL,
-        FOREIGN KEY (archive_id) REFERENCES archives (id) ON DELETE CASCADE
-    )
-''')
-conn.commit()
-
 # Function to add a new archive and its files
 def add_archive(archive_name, files):
+    conn = connect_database()
+    cursor = conn.cursor()
     cursor.execute("INSERT INTO archives (archive_name) VALUES (?)", (archive_name,))
     archive_id = cursor.lastrowid
     cursor.executemany("INSERT INTO files (archive_id, file_name) VALUES (?, ?)",
@@ -47,6 +24,8 @@ def add_archive(archive_name, files):
 
 # Function to retrieve all archives and their files
 def get_archives():
+    conn = connect_database()
+    cursor = conn.cursor()
     archive_list = []
     cursor.execute("SELECT * FROM archives")
     archives = cursor.fetchall()
@@ -59,6 +38,8 @@ def get_archives():
 
 # Function to delete an archive and its associated files
 def delete_archive(archive_name):
+    conn = connect_database()
+    cursor = conn.cursor()
     # Retrieve the archive ID and associated files
     cursor.execute("SELECT id FROM archives WHERE archive_name = ?", (archive_name,))
     result = cursor.fetchone()
@@ -89,6 +70,8 @@ def delete_archive(archive_name):
 
 
 def archive_exist(archive_name, file_list):
+    conn = connect_database()
+    cursor = conn.cursor()
     # Get the number of files to check against
     file_count = len(file_list)
 
@@ -110,6 +93,28 @@ def archive_exist(archive_name, file_list):
                 return True
     return False
 
+def connect_database():
+    conn = sqlite3.connect('database/archives.db')
+    cursor = conn.cursor()
+    cursor.execute('PRAGMA foreign_keys = ON')
+    conn.commit()
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS archives (
+            id INTEGER PRIMARY KEY,
+            archive_name TEXT NOT NULL
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS files (
+            id INTEGER PRIMARY KEY,
+            archive_id INTEGER,
+            file_name TEXT NOT NULL,
+            FOREIGN KEY (archive_id) REFERENCES archives (id) ON DELETE CASCADE
+        )
+    ''')
+    conn.commit()
+    return conn
 
 def start_database():
     title = "Press space to select an or multiple assets and press enter to confirm your selection\nPress q to quit"
