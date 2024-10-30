@@ -20,8 +20,11 @@ Or clone the repo and install the requirements to run the main file with python
 3. Put the downloaded assets in the downloads folder(The assets must be archives everything else gets ignored)  
 4. If an archive can't be imported you'll get a warning or an error. You need to manually import it if the archive is not corrupted.  
 
-
 After the content got imported you can delete the archives in the downloads folder if they got successfully imported
+
+## Debug mode
+If you want to use the debug mode. Open cmd, drag and drop the binary in cmd and then add debug to it  
+`Y:\DazContentInstaller\DazContentInstaller.exe debug`
 
 ## Showcase
 
