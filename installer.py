@@ -74,7 +74,7 @@ def clean_temp_folder():
 # Extract archives in the download folder and move content to temp folder
 def extract_archive(item):
         item_path = os.path.join(download_folder, item)
-        if item.endswith(('.zip', '.rar', '7z', '.tar')):
+        if item.lower().endswith(('.zip', '.rar', '7z', '.tar')):
             print(f"Extracting: {item}")
             try:
                 patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1, interactive=False, program=seven_zip_path)
@@ -121,7 +121,7 @@ def traverse_directory(folder_path, current_item):
     archive_extracted = False
     for root, dirs, files in os.walk(folder_path):
         for file in files:
-            if file.endswith(('.zip', '.rar', '7z', '.tar')):
+            if file.lower().endswith(('.zip', '.rar', '7z', '.tar')):
                 patoolib.extract_archive(os.path.join(str(root), file), outdir=root, verbosity= -1, interactive=False, program=seven_zip_path)
                 time.sleep(0.5)
                 os.remove(os.path.join(root, file))
