@@ -1,29 +1,26 @@
 # DazContentInstaller
 WINDOWS ONLY!  
 
-DazContentInstaller is a user-friendly tool designed to simplify the process of extracting archives,  installing and removing assets since sometimes third party assets don't have the right structure to be imported with the DAZ install manager.
+DazContentInstaller is a user-friendly tool designed to simplify the process of extracting archives, as well as installing and removing assets. It addresses the issue where third-party assets sometimes lack the proper structure for importing with the DAZ Install Manager.
 
-
-7-Zip is included in the repo.  
-No changes were made the standalone version got directly pulled from [https://www.7-zip.org/](https://www.7-zip.org)  
+The 7-Zip binary is included in the repository without any modifications. It has been directly sourced from [https://www.7-zip.org/](https://www.7-zip.org)  
 
 The tool only supports zip, rar, tar and 7z archives at the moment  
 More can be added if needed but I only encountered these
 
 ## Usage
 
-You can either get the [Release](https://github.com/Ati1707/DazContentInstaller/releases)  
-Or clone the repo and install the requirements to run the main file with python
+You can either get the [Release](https://github.com/Ati1707/DazContentInstaller/releases) or clone the repository and install the requirements to run the main file with Python:
 
-1. Start main.py or the binary once to generate folders
-2. Change library path in the config file or use the placeholder one(DO NOT USE YOUR MAIN LIBRARY FILE THIS TOOL IS NOT STABLE YET!!!!)  
-3. Put the downloaded assets in the downloads folder(The assets must be archives everything else gets ignored)  
-4. If an archive can't be imported you'll get a warning or an error. You need to manually import it if the archive is not corrupted.  
+1. Start the binary once to generate the necessary folders.
+2. Change the library path in the config file or use the placeholder path (DO NOT USE YOUR MAIN LIBRARY FILE; THIS TOOL IS NOT STABLE YET!).
+3. Place the downloaded assets in the downloads folder (the assets must be archives; everything else will be ignored).
+4. If an archive cannot be imported, you will receive a warning or an error. You will need to manually import it if the archive is not corrupted.
 
-After the content got imported you can delete the archives in the downloads folder if they got successfully imported
+After the content is imported, you can delete the archives in the downloads folder.
 
 ## Debug mode
-If you want to use the debug mode. Open cmd, drag and drop the binary in cmd and then add debug to it  
+To use the debug mode, open the Command Prompt, drag and drop the binary into the command window, and then add debug to it:
 `Y:\DazContentInstaller\DazContentInstaller.exe debug`
 
 ## Showcase
