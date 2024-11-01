@@ -47,19 +47,6 @@ def delete_archive(archive_name):
     if result:
         archive_id = result[0]
 
-        # Get all files associated with the archive
-        cursor.execute("SELECT file_name FROM files WHERE archive_id = ?", (archive_id,))
-        files = cursor.fetchall()
-
-        # Loop through and print the files to be deleted
-        if files:
-            for file in files:
-                file_path = os.path.join(library_path, file[0])
-                print(file_path)
-                if os.path.exists(file_path):
-                    os.remove(file_path)  # Delete the file
-
-
         # Delete the archive (this will also delete associated files due to ON DELETE CASCADE)
         cursor.execute("DELETE FROM archives WHERE id = ?", (archive_id,))
         conn.commit()
