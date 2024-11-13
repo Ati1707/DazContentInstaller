@@ -1,2 +1,3 @@
 patool
-pick
+customtkinter
+pywinstyles
