@@ -14,10 +14,7 @@ You can either get the [Release](https://github.com/Ati1707/DazContentInstaller/
 
 1. Start the binary once to generate the necessary folders.
 2. Change the library path in the config file or use the placeholder path (DO NOT USE YOUR MAIN LIBRARY FILE; THIS TOOL IS NOT STABLE YET!).
-3. Place the downloaded assets in the downloads folder (the assets must be archives; everything else will be ignored).
-4. If an archive cannot be imported, you will receive a warning or an error. You will need to manually import it if the archive is not corrupted.
-
-After the content is imported, you can delete the archives in the downloads folder.
+3. If an archive cannot be imported, you will receive a warning or an error. You will need to manually import it if the archive is not corrupted.
 
 ## Debug mode
 To use the debug mode, open the config.ini and change the DebugMode value to true
