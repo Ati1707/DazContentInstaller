@@ -19,6 +19,6 @@ You can either get the [Release](https://github.com/Ati1707/DazContentInstaller/
 ## Debug mode
 To use the debug mode, open the config.ini and change the DebugMode value to true
 
-## Showcase(Outdated)
+## Showcase
 
-<video src="https://github.com/user-attachments/assets/5170f047-99c4-4373-a2e8-0dd8b0640c3a"/>
+<video src="https://github.com/user-attachments/assets/5ced6e18-0abc-4f1a-8131-188aca18c99e"/>
