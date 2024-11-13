@@ -1,3 +1,5 @@
 patool
 customtkinter
 pywinstyles
+CTkToolTip
+CTkMessagebox
