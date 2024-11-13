@@ -1,5 +1,7 @@
 import threading
 from tkinter import BooleanVar
+from tkinter.constants import DISABLED
+
 import customtkinter as ctk
 from customtkinter import CTk, filedialog
 import pywinstyles
@@ -59,6 +61,7 @@ class AssetWidget(ctk.CTkFrame):
 
     def install_asset(self):
         """Installs the asset and removes its widget from the grid."""
+        self.button.configure(state=DISABLED)
         start_installer_gui(self.file_path, is_delete_archive=self.winfo_toplevel().tab_view.is_delete_archive.get())
         install_asset_list.remove(self)
         self.grid_remove()
