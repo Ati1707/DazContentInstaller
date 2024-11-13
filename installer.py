@@ -29,7 +29,7 @@ temp_folder = 'temp/'
 config = configparser.ConfigParser()
 config.read("config.ini")
 library_path = config["PATH"]["LibraryPath"]
-is_debug_mode = config["DEBUG"].getboolean("IsDebugMode")
+is_debug_mode = config["DEBUG"].getboolean("DebugMode")
 
 
 lock = threading.Lock()
