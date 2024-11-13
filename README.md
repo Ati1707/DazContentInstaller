@@ -12,9 +12,10 @@ More can be added if needed but I only encountered these
 
 You can either get the [Release](https://github.com/Ati1707/DazContentInstaller/releases) or clone the repository and install the requirements to run the main file with Python:
 
-1. Start the binary once to generate the necessary folders.
-2. Change the library path in the config file or use the placeholder path (DO NOT USE YOUR MAIN LIBRARY FILE; THIS TOOL IS NOT STABLE YET!).
-3. If an archive cannot be imported, you will receive a warning or an error. You will need to manually import it if the archive is not corrupted.
+1. Do not change the library path in the config.ini yet
+2. You can either drag and drop your archives or add them with the button below
+3. If an archive cannot be imported, you will receive a warning or an error in the console. You need to manually import those if the archive is not corrupt
+4. If you want to remove an asset from the library switch to the Uninstall tab
 
 ## Debug mode
 To use the debug mode, open the config.ini and change the DebugMode value to true
