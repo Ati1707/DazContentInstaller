@@ -1,4 +1,4 @@
-# DazContentInstaller
+# Daz Content Installer
 WINDOWS ONLY!  
 
 DazContentInstaller is a user-friendly tool designed to simplify the process of extracting archives, as well as installing and removing assets. It addresses the issue where third-party assets sometimes lack the proper structure for importing with the DAZ Install Manager.
