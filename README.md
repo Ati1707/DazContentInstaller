@@ -20,9 +20,8 @@ You can either get the [Release](https://github.com/Ati1707/DazContentInstaller/
 After the content is imported, you can delete the archives in the downloads folder.
 
 ## Debug mode
-To use the debug mode, open the Command Prompt, drag and drop the binary into the command window, and then add debug to it:
-`Y:\DazContentInstaller\DazContentInstaller.exe debug`
+To use the debug mode, open the config.ini and change the DebugMode value to true
 
-## Showcase
+## Showcase(Outdated)
 
 <video src="https://github.com/user-attachments/assets/5170f047-99c4-4373-a2e8-0dd8b0640c3a"/>
