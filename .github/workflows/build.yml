@@ -28,7 +28,7 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --add-binary "7z/7z.exe;7z" --noconsole --onefile main.py --name DazContentInstaller
+          pyinstaller --add-binary "7z/7z.exe;7z" --onefile main.py --name DazContentInstaller
 
       - name: Create package directory
         run: mkdir -p dist/DazContentInstaller
