@@ -27,5 +27,5 @@ To use the debug mode, open the config.ini and change the DebugMode value to tru
 
 ## Showcase
 
-<video src="https://github.com/user-attachments/assets/5ced6e18-0abc-4f1a-8131-188aca18c99e"/> 
+<video src="https://github.com/user-attachments/assets/132d1c18-f8ac-4c45-bf7d-ac4b4ea5c612"/> 
 
