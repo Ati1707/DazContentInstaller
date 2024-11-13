@@ -1,15 +1,13 @@
-import os
+import pathlib
 import sqlite3
 import configparser
-import time
-from pick import pick
-
-KEY_CTRL_C = 3
-QUIT_KEYS = (KEY_CTRL_C, ord("q"))
+import threading
 
 config = configparser.ConfigParser()
 config.read("config.ini")
 library_path = config["PATH"]["LibraryPath"]
+
+lock = threading.Lock()
 
 # Function to add a new archive and its files
 def add_archive(archive_name, files):
@@ -20,7 +18,6 @@ def add_archive(archive_name, files):
     cursor.executemany("INSERT INTO files (archive_id, file_name) VALUES (?, ?)",
                        [(archive_id, file_name) for file_name in files])
     conn.commit()
-    print(f"Archive '{archive_name}' with {len(files)} files added.")
 
 # Function to retrieve all archives and their files
 def get_archives():
@@ -36,24 +33,35 @@ def get_archives():
         archive_list.append((archive_name, str(len(files)) + " files" ))
     return archive_list
 
+
 # Function to delete an archive and its associated files
 def delete_archive(archive_name):
-    conn = connect_database()
-    cursor = conn.cursor()
-    # Retrieve the archive ID and associated files
-    cursor.execute("SELECT id FROM archives WHERE archive_name = ?", (archive_name,))
-    result = cursor.fetchone()
+    with lock:
+        conn = connect_database()
+        cursor = conn.cursor()
+        # Retrieve the archive ID and associated files
+        cursor.execute("SELECT id FROM archives WHERE archive_name = ?", (archive_name,))
+        result = cursor.fetchone()
 
-    if result:
-        archive_id = result[0]
+        if result:
+            archive_id = result[0]
 
-        # Delete the archive (this will also delete associated files due to ON DELETE CASCADE)
-        cursor.execute("DELETE FROM archives WHERE id = ?", (archive_id,))
-        conn.commit()
+            cursor.execute("SELECT file_name FROM files WHERE archive_id = ?", (archive_id,))
+            files = cursor.fetchall()
+            # Loop through and print the files to be deleted
+            if files:
+                for file in files:
+                    file_path = pathlib.Path(library_path).joinpath(file[0])
+                    if pathlib.Path(file_path).exists():
+                        pathlib.Path(file_path).unlink()
 
-        print(f"Archive '{archive_name}' and its files have been deleted.")
-    else:
-        print(f"Archive '{archive_name}' not found.")
+            # Delete the archive (this will also delete associated files due to ON DELETE CASCADE)
+            cursor.execute("DELETE FROM archives WHERE id = ?", (archive_id,))
+            conn.commit()
+
+            print(f"Archive '{archive_name}' and its files have been deleted.")
+        else:
+            print(f"Archive '{archive_name}' not found.")
 
 
 def archive_exist(archive_name, file_list):
@@ -102,13 +110,3 @@ def connect_database():
     ''')
     conn.commit()
     return conn
-
-def start_database():
-    title = "Press space to select an or multiple assets and press enter to confirm your selection\nPress q to quit"
-    options = get_archives()
-    selected = pick(options, title, multiselect=True, min_selection_count=1, indicator="=>", quit_keys=QUIT_KEYS)
-    for archive in selected:
-        archive_name = archive[0][0]
-        delete_archive(archive_name)
-    print("Exiting tool....")
-    time.sleep(3)

@@ -1,2 +1,5 @@
 patool
-pick
+customtkinter
+pywinstyles
+CTkToolTip
+CTkMessagebox
