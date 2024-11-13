@@ -16,10 +16,6 @@ You can either get the [Release](https://github.com/Ati1707/DazContentInstaller/
 
 To use the debug mode, open the config.ini and change the DebugMode value to true
 
-## Showcase
-
-<video src="https://github.com/user-attachments/assets/5ced6e18-0abc-4f1a-8131-188aca18c99e"/> 
-
 ## Credits
 
 [https://www.7-zip.org/](https://www.7-zip.org) using their console tool  
@@ -28,4 +24,8 @@ To use the debug mode, open the config.ini and change the DebugMode value to tru
 [Messagebox Widget](https://github.com/Akascape/CTkMessagebox) custom messagebox widget  
 [Tooltip Widget](https://github.com/Akascape/CTkToolTip) custom tooltip widget  
 [Pywinstyles](https://github.com/Akascape/py-window-styles) to enable the drag and drop feature  
+
+## Showcase
+
+<video src="https://github.com/user-attachments/assets/5ced6e18-0abc-4f1a-8131-188aca18c99e"/> 
 
