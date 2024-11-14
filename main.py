@@ -3,7 +3,7 @@ from tkinter import BooleanVar
 from tkinter.constants import DISABLED
 
 import customtkinter as ctk
-from customtkinter import CTk, filedialog
+from customtkinter import CTk, filedialog, CTkLabel
 import pywinstyles
 from content_database import get_archives, delete_archive
 from installer import start_installer_gui
@@ -38,6 +38,7 @@ class AssetWidget(ctk.CTkFrame):
         super().__init__(parent)
         self.asset_name = asset_name
         self.file_path = file_path
+        self.file_size = file_operations.get_file_size(self.file_path)
 
         # Checkbox for the asset
         self.checkbox = ctk.CTkCheckBox(self, text=truncate_string(asset_name))
@@ -48,15 +49,22 @@ class AssetWidget(ctk.CTkFrame):
 
         # Install button
         if tab_name == "Install":
+            self.label = CTkLabel(self, text=self.file_size)
+            self.label.grid(row=0, column=1, padx=20, pady=10, sticky="w")
+
+            # Install button
             self.button = ctk.CTkButton(self, text=tab_name, command=lambda: start_install_thread(self.install_asset))
-            self.button.grid(row=0, column=1, padx=20, pady=10, sticky="e")
+            self.button.grid(row=0, column=2, padx=20, pady=10, sticky="e")
         else:
+
+            # Uninstall button
             self.button = ctk.CTkButton(self, text=tab_name, command=self.remove_asset)
             self.button.grid(row=0, column=1, padx=20, pady=10, sticky="e")
 
         # Column configuration for layout
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=0)
+        self.columnconfigure(2, weight=0)
 
 
     def install_asset(self):
@@ -163,7 +171,7 @@ class MyTabView(ctk.CTkTabview):
         file_path = filedialog.askopenfilename()
         if file_path:
             file_name = file_operations.get_file_from_path(file_path)
-            asset_name, _ = file_operations.split_file_and_extension(file_name)
+            asset_name = file_operations.get_file_name_without_extension(file_name)
             self.add_asset_widget(asset_name, file_path)
 
     def install_assets(self):
@@ -190,7 +198,7 @@ class MyTabView(ctk.CTkTabview):
         """Handles file drop to create asset widgets."""
         for file_path in files:
             file_name = file_operations.get_file_from_path(file_path)
-            asset_name, _ = file_operations.split_file_and_extension(file_name)
+            asset_name = file_operations.get_file_name_without_extension(file_name)
             self.after(50, self.add_asset_widget, asset_name, file_path)
 
 
