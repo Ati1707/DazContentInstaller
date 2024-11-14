@@ -3,7 +3,7 @@ from tkinter import BooleanVar
 from tkinter.constants import DISABLED
 
 import customtkinter as ctk
-from customtkinter import CTk, filedialog, CTkLabel
+from customtkinter import CTk, filedialog, CTkLabel, deactivate_automatic_dpi_awareness
 import pywinstyles
 from content_database import get_archives, delete_archive
 from installer import start_installer_gui
@@ -17,11 +17,16 @@ remove_asset_list = []
 
 def center_window_to_display(screen: CTk, width: int, height: int, scale_factor: float = 1.0) -> str:
     """Centers the window on the main display."""
+    scaled_width = int(width / scale_factor)
+    scaled_height = int(height / scale_factor)
     screen_width = screen.winfo_screenwidth()
     screen_height = screen.winfo_screenheight()
-    x = int((screen_width / 2 - width / 2) * scale_factor)
-    y = int((screen_height / 2 - height / 1.5) * scale_factor)
-    return f"{width}x{height}+{x}+{y}"
+
+    # Calculate the x and y coordinates for centering the window
+    x = int((screen_width - scaled_width) / 2)
+    y = int((screen_height - scaled_height) / 2)
+
+    return f"{scaled_width}x{scaled_height}+{x}+{y}"
 
 
 def truncate_string(text: str, max_length: int = 50) -> str:
@@ -221,9 +226,6 @@ class App(CTk):
         super().__init__()
         self.title("Daz Content Installer")
         self.geometry(center_window_to_display(self, 1100, 650, self._get_window_scaling()))
-
-        self.resizable(width=False, height=False)
-
         file_operations.create_folders()
 
 
