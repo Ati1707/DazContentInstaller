@@ -1,27 +1,17 @@
-import pathlib
-import sys
-import time
-import shutil
-import re
-import threading
-from helper.config_operations import get_library_path, get_debug_mode
-
-import patoolib
-from patoolib.util import PatoolError
-
 import content_database
 import patches # Needed to apply monkey patching
+import pathlib
+import patoolib
+import re
+import shutil
+import sys
+import threading
+import time
+
+from helper.config_operations import get_library_path, get_debug_mode
 from helper.file_operations import create_temp_folder, delete_temp_folder
+from patoolib.util import PatoolError
 
-
-# Class to create colored output
-class Bcolors:
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 temp_folder = 'temp/'
 
@@ -74,7 +64,7 @@ def extract_archive(item_path, is_debug_mode):
                 time.sleep(1)
                 return True
             except PatoolError:
-                print(f"{Bcolors.FAIL}The archive {base_item_name} can not be extracted{Bcolors.ENDC}")
+                print(f"The archive {base_item_name} can not be extracted")
                 return False
 
 # Removes everything in temp folder that is not one of the target folders before importing to library
@@ -144,10 +134,10 @@ def start_installer_gui(file_path, is_delete_archive=False):
             clean_temp_folder()
             return
         if traverse_directory(temp_folder, pathlib.Path(file_path), get_debug_mode()):
-            print(f"{Bcolors.OKGREEN}{file_path} was successfully imported to your library{Bcolors.ENDC}")
+            print(f"{file_path} was successfully imported to your library")
         else:
-            print(f"{Bcolors.WARNING}{file_path} can not be automatically imported because it doesn't have the right folder structure{Bcolors.ENDC}")
-            print(f"{Bcolors.WARNING}or the archive already exists in the database{Bcolors.ENDC}")
+            print(f"{file_path} can not be automatically imported because it doesn't have the right folder structure")
+            print(f"or the archive already exists in the database")
         clean_temp_folder()
         delete_temp_folder()
         if is_delete_archive:

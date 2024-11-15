@@ -1,16 +1,16 @@
-from webbrowser import open
+import customtkinter as ctk
+import pywinstyles
 import threading
+
+from CTkMessagebox import CTkMessagebox
+from CTkToolTip import CTkToolTip
+from content_database import get_archives, delete_archive
+from customtkinter import CTk, filedialog, CTkLabel
+from helper import file_operations
+from installer import start_installer_gui
 from tkinter import BooleanVar
 from tkinter.constants import DISABLED
-
-import customtkinter as ctk
-from customtkinter import CTk, filedialog, CTkLabel
-import pywinstyles
-from content_database import get_archives, delete_archive
-from installer import start_installer_gui
-from helper import file_operations
-from CTkToolTip import CTkToolTip
-from CTkMessagebox import CTkMessagebox
+from webbrowser import open
 
 install_asset_list = []
 remove_asset_list = []

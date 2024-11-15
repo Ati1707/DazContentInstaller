@@ -1,5 +1,5 @@
-from patoolib.util import *
 from patoolib.mime import *
+from patoolib.util import *
 
 def patched_run_checked(cmd, ret_ok=(0,), **kwargs):
     """Run command and raise PatoolError on error with an additional condition."""

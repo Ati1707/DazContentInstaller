@@ -1,5 +1,7 @@
-from pathlib import Path, PurePath
 import shutil
+
+from pathlib import Path, PurePath
+
 
 
 def get_file_from_path(file_path):
