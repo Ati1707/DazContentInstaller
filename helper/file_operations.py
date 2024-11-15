@@ -8,9 +8,11 @@ def get_file_from_path(file_path):
 def get_file_name_without_extension(file):
     return file.rpartition(".")[0]
 
-def create_folders():
+def create_folder() -> bool:
+    """Also returns a boolean to check if it's a users first time starting the tool"""
     if not Path.exists(Path("database/")):
         Path.mkdir(Path("database/"))
+        return True
 
 def create_temp_folder():
     if not Path.exists(Path("temp/")):

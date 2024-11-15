@@ -1,9 +1,10 @@
+from webbrowser import open
 import threading
 from tkinter import BooleanVar
 from tkinter.constants import DISABLED
 
 import customtkinter as ctk
-from customtkinter import CTk, filedialog, CTkLabel, deactivate_automatic_dpi_awareness
+from customtkinter import CTk, filedialog, CTkLabel
 import pywinstyles
 from content_database import get_archives, delete_archive
 from installer import start_installer_gui
@@ -226,8 +227,6 @@ class App(CTk):
         super().__init__()
         self.title("Daz Content Installer")
         self.geometry(center_window_to_display(self, 1100, 650, self._get_window_scaling()))
-        file_operations.create_folders()
-
 
         # Initialize and place MyTabView
         self.tab_view = MyTabView(master=self)
@@ -239,6 +238,16 @@ class App(CTk):
         # Configure main window grid
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
+
+        if file_operations.create_folder():
+            msg = CTkMessagebox(title="Info",
+                                message="It seems like this is your first time opening the tool!\n\n"
+                                "You can use the default library which will be in this folder but you can also use a different path.\n",
+                                option_1="No",
+                                option_2="Open configuration file",
+                                width=500, height=250)
+            if msg.get() == "Open configuration file":
+                open("config.ini")
 
 
 # Run the application
