@@ -57,30 +57,22 @@ def extract_archive(item_path, is_debug_mode):
         if base_item_name.lower().endswith(('.zip', '.rar', '7z', '.tar')):
             print(f"Extracting: {base_item_name}")
             try:
-                if is_debug_mode:
-                    patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= 2, interactive=False, program=str(seven_zip_path))
-                else:
-                    patoolib.extract_archive(item_path, outdir=temp_folder, verbosity= -1, interactive=False, program=str(seven_zip_path))
+                verbosity = 2 if is_debug_mode else -1
+                patoolib.extract_archive(item_path, outdir=temp_folder, verbosity=verbosity, interactive=False, program=str(seven_zip_path))
                 time.sleep(1)
                 return True
-            except PatoolError:
-                print(f"The archive {base_item_name} can not be extracted")
+            except PatoolError as e:
+                print(f"The archive {base_item_name} can not be extracted: {e}")
                 return False
 
 # Removes everything in temp folder that is not one of the target folders before importing to library
 def clean_folder(folder_path):
-    targets = [folder for folder in target_folders]
-
     for item_path in pathlib.Path(folder_path).iterdir():
         item = item_path.name
-
-        # If it's a folder and not in target folders, delete it
-        if pathlib.Path(item_path).is_dir() and item not in targets:
+        if item_path.is_dir() and item not in target_folders:
             shutil.rmtree(item_path)
-
-        # If it's a file, delete it
-        elif pathlib.Path(item_path).is_file():
-            pathlib.Path(item_path).unlink()
+        elif item_path.is_file():
+            item_path.unlink()
 
 def add_to_database(root_path, item):
     archive_name = item.stem.split(".")[0]
@@ -105,12 +97,8 @@ def traverse_directory(folder_path, current_item, is_debug_mode):
     for root, dirs, files in pathlib.Path(folder_path).walk():
         for file in files:
             if file.lower().endswith(('.zip', '.rar', '7z', '.tar')):
-                if is_debug_mode:
-                    pathlib.Path(str(root)).joinpath(file)
-                    patoolib.extract_archive(str(pathlib.Path(str(root)).joinpath(file)), outdir=str(root), verbosity=2,
-                                             interactive=False, program=str(seven_zip_path))
-                else:
-                    patoolib.extract_archive(str(pathlib.Path(str(root)).joinpath(file)), outdir=str(root), verbosity=-1,
+                verbosity = 2 if is_debug_mode else -1
+                patoolib.extract_archive(str(pathlib.Path(str(root)).joinpath(file)), outdir=str(root), verbosity=verbosity,
                                              interactive=False, program=str(seven_zip_path))
                 time.sleep(0.5)
                 pathlib.Path(root).joinpath(file).unlink()
