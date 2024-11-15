@@ -113,7 +113,6 @@ def log_subprocess_output(output: str, level: int):
 
 # Apply the patch
 import patoolib
-import importlib
 
 patoolib.util.run = patched_run
 patoolib.util.run_checked = patched_run_checked

@@ -1,3 +1,4 @@
+import logging
 import pathlib
 import sqlite3
 import threading
@@ -37,6 +38,7 @@ def get_archives():
 # Function to delete an archive and its associated files
 def delete_archive(archive_name):
     with lock:
+        logger = logging.getLogger(__name__)
         conn = connect_database()
         cursor = conn.cursor()
         # Retrieve the archive ID and associated files
@@ -59,9 +61,9 @@ def delete_archive(archive_name):
             cursor.execute("DELETE FROM archives WHERE id = ?", (archive_id,))
             conn.commit()
 
-            print(f"Archive '{archive_name}' and its files have been deleted.")
+            logger.info(f"Archive '{archive_name}' and its files have been deleted.")
         else:
-            print(f"Archive '{archive_name}' not found.")
+            logger.info(f"Archive '{archive_name}' not found.")
         conn.close()
 
 
@@ -85,7 +87,6 @@ def archive_exist(archive_name, file_list):
     if existing_archives:
         for existing_archive in existing_archives:
             if existing_archive[0] == archive_name:
-                print(f"An archive named '{archive_name}' with {file_count} files already exists.")
                 conn.close()
                 return True
     conn.close()
