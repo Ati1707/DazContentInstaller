@@ -2,9 +2,9 @@ import pathlib
 import sys
 import time
 import shutil
-import configparser
 import re
 import threading
+from helper.config_operations import get_library_path, get_debug_mode
 
 import patoolib
 from patoolib.util import PatoolError
@@ -23,13 +23,7 @@ class Bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-download_folder = 'downloads/'
 temp_folder = 'temp/'
-
-config = configparser.ConfigParser()
-config.read("config.ini")
-library_path = config["PATH"]["LibraryPath"]
-is_debug_mode = config["DEBUG"].getboolean("DebugMode")
 
 
 lock = threading.Lock()
@@ -40,11 +34,6 @@ else:
     base_path = pathlib.Path(__file__).parents
 seven_zip_path = pathlib.Path(str(base_path)).joinpath( "7z\\7z.exe")
 
-if not library_path or library_path == "example":
-    print(f"{Bcolors.WARNING}You need to set a asset library path in the config.ini{Bcolors.ENDC}")
-    print(f"{Bcolors.WARNING}Create a new folder don't use an existing folder{Bcolors.ENDC}")
-    print(f"{Bcolors.WARNING}This tool is not stable yet!!! Data loss can occur if you use an existing folder{Bcolors.ENDC}")
-    sys.exit(0)
 
 # Define the target folders
 target_folders = [
@@ -142,7 +131,7 @@ def traverse_directory(folder_path, current_item, is_debug_mode):
             clean_folder(root)
             if add_to_database(root, current_item):
                 return False
-            shutil.copytree(root, library_path, dirs_exist_ok=True)
+            shutil.copytree(root, get_library_path(), dirs_exist_ok=True)
             return True
     return False
 
@@ -151,10 +140,10 @@ def start_installer_gui(file_path, is_delete_archive=False):
     with lock:
         create_temp_folder()
         clean_temp_folder()
-        if not extract_archive(file_path, is_debug_mode):
+        if not extract_archive(file_path, get_debug_mode()):
             clean_temp_folder()
             return
-        if traverse_directory(temp_folder, pathlib.Path(file_path), is_debug_mode):
+        if traverse_directory(temp_folder, pathlib.Path(file_path), get_debug_mode()):
             print(f"{Bcolors.OKGREEN}{file_path} was successfully imported to your library{Bcolors.ENDC}")
         else:
             print(f"{Bcolors.WARNING}{file_path} can not be automatically imported because it doesn't have the right folder structure{Bcolors.ENDC}")
