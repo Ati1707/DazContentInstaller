@@ -239,7 +239,7 @@ class App(CTk):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        if file_operations.create_folder():
+        if file_operations.create_database_folder():
             msg = CTkMessagebox(title="Info",
                                 message="It seems like this is your first time opening the tool!\n\n"
                                 "You can use the default library which will be in this folder but you can also use a different path.\n",
