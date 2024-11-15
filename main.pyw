@@ -9,7 +9,7 @@ from customtkinter import CTk, filedialog, CTkLabel
 from helper import file_operations
 from installer import start_installer_gui
 from tkinter import BooleanVar
-from tkinter.constants import DISABLED
+from tkinter.constants import DISABLED, NORMAL
 from webbrowser import open
 
 install_asset_list = []
@@ -162,8 +162,8 @@ class MyTabView(ctk.CTkTabview):
         add_asset_button.grid(row=2, column=0, padx=20, pady=10, sticky="s")
 
         # Install selected button
-        install_button = ctk.CTkButton(install_tab, text="Install selected", command=self.install_assets)
-        install_button.grid(row=2, column=0, padx=20, pady=10, sticky="se")
+        self.install_button = ctk.CTkButton(install_tab, text="Install selected", command=self.install_assets)
+        self.install_button.grid(row=2, column=0, padx=20, pady=10, sticky="se")
 
     def add_asset_widget(self, asset_name: str, asset_path: str):
         """Adds a new asset widget to the scrollable frame."""
@@ -185,10 +185,14 @@ class MyTabView(ctk.CTkTabview):
         msg = CTkMessagebox(title="Install?", message="Do you want to install the selected assets?",
                             icon="question", option_1="No", option_2="Yes")
         if msg.get() == "Yes":
+            self.install_button.configure(state=DISABLED)
             temp_install_list = install_asset_list.copy()
             for asset in temp_install_list:
                 if asset.checkbox.get():
                     start_install_thread(asset.install_asset)
+            self.install_button.configure(state=NORMAL)
+            self.check_install.deselect()
+
 
     def remove_assets(self):
         """Removes the selected assets and their widgets."""
@@ -239,7 +243,7 @@ class App(CTk):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        if file_operations.create_folder():
+        if file_operations.create_database_folder():
             msg = CTkMessagebox(title="Info",
                                 message="It seems like this is your first time opening the tool!\n\n"
                                 "You can use the default library which will be in this folder but you can also use a different path.\n",
