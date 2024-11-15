@@ -32,9 +32,6 @@ jobs:
       - name: Create package directory
         run: mkdir -p dist/DazContentInstaller
         
-      - name: Create logger directory
-        run: mkdir -p dist/DazContentInstaller/logs
-        
       - name: Copy config.ini file
         run: cp config.ini dist/DazContentInstaller/
 
