@@ -63,8 +63,41 @@ def patched_guess_mime_file(filename: str) -> tuple[str | None, str | None]:
             encoding = get_file_mime_encoding(outparts)
     return mime, encoding
 
+def patched_run(cmd: Sequence[str], verbosity: int = 0, **kwargs) -> int:
+    """Run command without error checking.
+    @return: command return code
+    """
+    # Note that shell_quote_nt() result is not suitable for copy-paste
+    # (especially on Unix systems), but it looks nicer than shell_quote().
+    if verbosity >= 0:
+        info = " ".join(map(shell_quote_nt, cmd))
+        log_info(f"running {info}")
+    if run_under_pythonw():
+        # prevent opening of additional consoles when running with pythonw.exe
+        kwargs["creationflags"] = (
+            subprocess.CREATE_NO_WINDOW  # pytype: disable=module-attr
+        )
+    # try to prevent hangs for programs requiring input
+    kwargs["input"] = ""
+    if verbosity < 1:
+        # hide command output on stdout
+        kwargs['stdout'] = subprocess.DEVNULL
+    if kwargs:
+        if verbosity > 0:
+            info = ", ".join(f"{k}={shell_quote(str(v))}" for k, v in kwargs.items())
+            log_info(f"    with {info}")
+        if kwargs.get("shell"):
+            # for shell calls the command must be a string
+            cmd = " ".join(cmd)
+    startupinfo = subprocess.STARTUPINFO()
+    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    startupinfo.wShowWindow = subprocess.SW_HIDE
+    res = subprocess.run(cmd, startupinfo=startupinfo, **kwargs)
+    return res.returncode
+
 # Apply the patch
 import patoolib
 
+patoolib.util.run = patched_run
 patoolib.util.run_checked = patched_run_checked
 patoolib.mime.guess_mime_file = patched_guess_mime_file
