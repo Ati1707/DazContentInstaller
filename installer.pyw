@@ -1,5 +1,4 @@
 import content_database
-import logging
 import patches # Needed to apply monkey patching
 import pathlib
 import patoolib

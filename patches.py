@@ -1,9 +1,12 @@
+import logging
+
 from patoolib.mime import *
 from patoolib.util import *
 
+
 def patched_run_checked(cmd, ret_ok=(0,), **kwargs):
     """Run command and raise PatoolError on error with an additional condition."""
-    retcode = run(cmd, **kwargs)
+    retcode = patched_run(cmd, **kwargs)
 
     # Original condition, with an added condition:
     # Add a custom check, if retcode is not a specific value.
@@ -82,22 +85,35 @@ def patched_run(cmd: Sequence[str], verbosity: int = 0, **kwargs) -> int:
     if verbosity < 1:
         # hide command output on stdout
         kwargs['stdout'] = subprocess.DEVNULL
+        kwargs['stderr'] = subprocess.DEVNULL
     if kwargs:
         if verbosity > 0:
             info = ", ".join(f"{k}={shell_quote(str(v))}" for k, v in kwargs.items())
             log_info(f"    with {info}")
+            kwargs['stdout'] = subprocess.PIPE
+            kwargs['stderr'] = subprocess.PIPE
         if kwargs.get("shell"):
             # for shell calls the command must be a string
             cmd = " ".join(cmd)
-    startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    startupinfo.wShowWindow = subprocess.SW_HIDE
-    res = subprocess.run(cmd, startupinfo=startupinfo, **kwargs)
+    res = subprocess.run(cmd, text=True, **kwargs)
+    if res.stdout:
+        log_subprocess_output(res.stdout, level=logging.INFO)
+    if res.stderr:
+        pass
+        log_subprocess_output(res.stderr, level=logging.ERROR)
     return res.returncode
+
+def log_subprocess_output(output: str, level: int):
+    logger = logging.getLogger(__name__)
+    for line in output.splitlines():
+        logger.log(level, line)
 
 # Apply the patch
 import patoolib
+import importlib
 
 patoolib.util.run = patched_run
 patoolib.util.run_checked = patched_run_checked
 patoolib.mime.guess_mime_file = patched_guess_mime_file
+
+importlib.reload(patoolib)

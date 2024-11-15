@@ -62,7 +62,6 @@ def limit_logger_files():
         # Delete the oldest files to ensure only 2 are kept
         files_to_delete = len(log_files) - 2
         for file in log_files_sorted[:files_to_delete]:
-            print(f"Deleting: {file}")
             file.unlink()
 
 def create_logger():
@@ -73,7 +72,7 @@ def create_logger():
     log_file = f"logs/{now}.log"
     logging.basicConfig(
         filename=log_file,
-        level=logging.DEBUG,
+        level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s", datefmt='%m/%d/%Y %I:%M:%S'
     )
     return logging.getLogger(__name__)
