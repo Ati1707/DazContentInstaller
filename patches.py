@@ -118,5 +118,3 @@ import importlib
 patoolib.util.run = patched_run
 patoolib.util.run_checked = patched_run_checked
 patoolib.mime.guess_mime_file = patched_guess_mime_file
-
-importlib.reload(patoolib)
