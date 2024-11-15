@@ -95,6 +95,9 @@ def patched_run(cmd: Sequence[str], verbosity: int = 0, **kwargs) -> int:
         if kwargs.get("shell"):
             # for shell calls the command must be a string
             cmd = " ".join(cmd)
+    kwargs["creationflags"] = (
+        subprocess.CREATE_NO_WINDOW  # pytype: disable=module-attr
+    )
     res = subprocess.run(cmd, text=True, **kwargs)
     if res.stdout:
         log_subprocess_output(res.stdout, level=logging.INFO)
