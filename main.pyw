@@ -55,12 +55,16 @@ class AssetWidget(ctk.CTkFrame):
 
         # Install button
         if tab_name == "Install":
+            self.progressbar = ctk.CTkProgressBar(self)
+            self.progressbar.set(-1)
+            self.progressbar.grid(row=0, column=1, padx=20, pady=10, sticky="w")
+
             self.label = CTkLabel(self, text=self.file_size)
-            self.label.grid(row=0, column=1, padx=20, pady=10, sticky="w")
+            self.label.grid(row=0, column=2, padx=20, pady=10, sticky="w")
 
             # Install button
             self.button = ctk.CTkButton(self, text=tab_name, command=lambda: start_install_thread(self.install_asset))
-            self.button.grid(row=0, column=2, padx=20, pady=10, sticky="e")
+            self.button.grid(row=0, column=3, padx=20, pady=10, sticky="e")
         else:
 
             # Uninstall button
@@ -71,12 +75,13 @@ class AssetWidget(ctk.CTkFrame):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=0)
         self.columnconfigure(2, weight=0)
+        self.columnconfigure(3, weight=0)
 
 
     def install_asset(self):
         """Installs the asset and removes its widget from the grid."""
         self.button.configure(state=DISABLED)
-        start_installer_gui(self.file_path, is_delete_archive=self.winfo_toplevel().tab_view.is_delete_archive.get())
+        start_installer_gui(self.file_path, self.progressbar, is_delete_archive=self.winfo_toplevel().tab_view.is_delete_archive.get())
         install_asset_list.remove(self)
         self.grid_remove()
 
