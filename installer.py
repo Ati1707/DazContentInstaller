@@ -94,7 +94,7 @@ def add_to_database(root_path, item):
 
 
 # Searching the content of extracted archive for target folders
-def traverse_directory(folder_path, current_item, is_debug_mode):
+def traverse_directory(folder_path, current_item, progressbar, is_debug_mode):
     archive_extracted = False
     for root, dirs, files in pathlib.Path(folder_path).walk():
         for file in files:
@@ -106,9 +106,12 @@ def traverse_directory(folder_path, current_item, is_debug_mode):
                 time.sleep(0.5)
                 pathlib.Path(root).joinpath(file).unlink()
                 archive_extracted = True
+        progressbar.set(progressbar.get() + 0.1)
         if archive_extracted:
-            return traverse_directory(folder_path, current_item, is_debug_mode)
+            progressbar.set(progressbar.get()+0.1)
+            return traverse_directory(folder_path, current_item, progressbar,  is_debug_mode)
         if any(target in dirs for target in target_folders):
+            progressbar.set(0.9)
             clean_folder(root)
             if add_to_database(root, current_item):
                 return False
@@ -116,15 +119,17 @@ def traverse_directory(folder_path, current_item, is_debug_mode):
             return True
     return False
 
-def start_installer_gui(file_path, is_delete_archive=False):
+def start_installer_gui(file_path, progressbar, is_delete_archive=False):
     with lock:
         logger.info(f"Installing {file_path}")
         create_temp_folder()
         clean_temp_folder()
+        progressbar.set(0.1)
         if not extract_archive(file_path, get_debug_mode()):
             clean_temp_folder()
             return
-        if traverse_directory(temp_folder, pathlib.Path(file_path), get_debug_mode()):
+        progressbar.set(0.4)
+        if traverse_directory(temp_folder, pathlib.Path(file_path), progressbar,  get_debug_mode()):
             logger.info(f"Successfully imported: {file_path}")
         else:
             logger.warning(f"Failed to import {file_path}. Invalid folder structure or asset already exists.")
