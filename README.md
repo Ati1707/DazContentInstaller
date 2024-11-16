@@ -18,7 +18,7 @@ To use the debug mode, open the config.ini and change the DebugMode value to tru
 ## Credits
 
 [https://www.7-zip.org/](https://www.7-zip.org) using their console tool  
-[Patool](https://github.com/wummel/patool) for extracting archives  
+[patool](https://github.com/wummel/patool) for extracting archives  
 [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) library used for the GUI  
 [Messagebox Widget](https://github.com/Akascape/CTkMessagebox) custom messagebox widget  
 [Tooltip Widget](https://github.com/Akascape/CTkToolTip) custom tooltip widget  
