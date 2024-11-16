@@ -119,7 +119,8 @@ def traverse_directory(folder_path, current_item, progressbar, is_debug_mode):
             return True
     return False
 
-def start_installer_gui(file_path, progressbar, is_delete_archive=False):
+def start_installer_gui(file_path, progressbar, is_delete_archive=False) -> bool:
+    is_archive_imported = False
     with lock:
         logger.info(f"Installing {file_path}")
         create_temp_folder()
@@ -130,11 +131,15 @@ def start_installer_gui(file_path, progressbar, is_delete_archive=False):
             return
         progressbar.set(0.4)
         if traverse_directory(temp_folder, pathlib.Path(file_path), progressbar,  get_debug_mode()):
+            is_archive_imported = True
             logger.info(f"Successfully imported: {file_path}")
+
         else:
+            is_archive_imported = False
             logger.warning(f"Failed to import {file_path}. Invalid folder structure or asset already exists.")
         clean_temp_folder()
         delete_temp_folder()
         if is_delete_archive:
             pathlib.Path(file_path).unlink()
             logger.info(f"Deleted archive: {file_path}")
+        return is_archive_imported

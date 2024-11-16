@@ -81,7 +81,9 @@ class AssetWidget(ctk.CTkFrame):
     def install_asset(self):
         """Installs the asset and removes its widget from the grid."""
         self.button.configure(state=DISABLED)
-        start_installer_gui(self.file_path, self.progressbar, is_delete_archive=self.winfo_toplevel().tab_view.is_delete_archive.get())
+        archive_imported = start_installer_gui(self.file_path, self.progressbar, is_delete_archive=self.winfo_toplevel().tab_view.is_delete_archive.get())
+        if not archive_imported:
+            CTkMessagebox(title="Warning Message!", message=f"The archive: {self.asset_name} was not imported. Check the log for more info", icon="warning")
         install_asset_list.remove(self)
         self.grid_remove()
 
