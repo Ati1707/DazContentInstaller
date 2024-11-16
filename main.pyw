@@ -78,6 +78,10 @@ class AssetWidget(ctk.CTkFrame):
         self.columnconfigure(3, weight=0)
 
 
+    def remove_from_view(self):
+        install_asset_list.remove(self)
+        self.grid_remove()
+
     def install_asset(self):
         """Installs the asset and removes its widget from the grid."""
         self.button.configure(state=DISABLED)
@@ -160,17 +164,27 @@ class MyTabView(ctk.CTkTabview):
         """Creates widgets for the install tab."""
         install_tab = self.tab("Install")
 
+        install_frame = ctk.CTkFrame(install_tab)
+        install_frame.grid(row=2, column=0, sticky="news")
+        install_frame.grid_columnconfigure(0, weight=0)
+        install_frame.grid_columnconfigure(1, weight=1)
+        install_frame.grid_columnconfigure(1, weight=1)
+        install_frame.grid_columnconfigure(2, weight=0)
+
         # Delete Archive checkbox
-        del_archive_checkbox = ctk.CTkCheckBox(install_tab, text="Delete Archive after Installation", variable=self.is_delete_archive)
-        del_archive_checkbox.grid(row=2, column=0, padx=20, pady=10, sticky="sw")
+        del_archive_checkbox = ctk.CTkCheckBox(install_frame, text="Delete Archive after Installation", variable=self.is_delete_archive)
+        del_archive_checkbox.grid(row=0, column=0, padx=20, pady=10)
+
+        self.remove_button = ctk.CTkButton(install_frame, text="Remove selected", command=self.remove_selected)
+        self.remove_button.grid(row=0, column=1, padx=20, pady=10, sticky="w")
 
         # Add Asset button
-        add_asset_button = ctk.CTkButton(install_tab, text="Add Asset", command=self.select_file)
-        add_asset_button.grid(row=2, column=0, padx=20, pady=10, sticky="s")
+        add_asset_button = ctk.CTkButton(install_frame, text="Add Asset", command=self.select_file)
+        add_asset_button.grid(row=0, column=1, padx=20, pady=10, sticky="s")
 
         # Install selected button
-        self.install_button = ctk.CTkButton(install_tab, text="Install selected", command=self.install_assets)
-        self.install_button.grid(row=2, column=0, padx=20, pady=10, sticky="se")
+        self.install_button = ctk.CTkButton(install_frame, text="Install selected", command=self.install_assets)
+        self.install_button.grid(row=0, column=2, padx=50, pady=10)
 
     def add_asset_widget(self, asset_name: str, asset_path: str):
         """Adds a new asset widget to the scrollable frame."""
@@ -186,6 +200,12 @@ class MyTabView(ctk.CTkTabview):
             file_name = file_operations.get_file_from_path(file_path)
             asset_name = file_operations.get_file_name_without_extension(file_name)
             self.add_asset_widget(asset_name, file_path)
+
+    def remove_selected(self):
+        temp_install_list = install_asset_list.copy()
+        for asset in temp_install_list:
+            if asset.checkbox.get():
+                asset.remove_from_view()
 
     def install_assets(self):
         """Installs selected assets and removes their widgets."""
