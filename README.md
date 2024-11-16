@@ -24,7 +24,6 @@ To use the debug mode, open the config.ini and change the DebugMode value to tru
 [Tooltip Widget](https://github.com/Akascape/CTkToolTip) custom tooltip widget  
 [Pywinstyles](https://github.com/Akascape/py-window-styles) to enable the drag and drop feature  
 [PyInstaller](https://github.com/pyinstaller/pyinstaller) to create the binary
-## Showcase
+## Screenshot
 
-<video src="https://github.com/user-attachments/assets/b5963d35-7698-4aab-a479-6339ad2bac2e"/> 
-
+![grafik](https://github.com/user-attachments/assets/80c2cc1a-831f-4707-a11a-1d306879701f)
