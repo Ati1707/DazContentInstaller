@@ -114,13 +114,15 @@ def traverse_directory(folder_path, current_item, progressbar, is_debug_mode, is
             is_nested_archive = archive_extracted
             return traverse_directory(folder_path, current_item, progressbar,  is_debug_mode, is_nested_archive)
         if manifest_exists:
-            content_path = pathlib.Path(str(root)).joinpath(dirs[0])
-            progressbar.set(0.9)
-            clean_folder(content_path)
-            if add_to_database(content_path, current_item):
-                return False
-            shutil.copytree(content_path, get_library_path(), dirs_exist_ok=True)
-            return True
+            for folder in dirs:
+                if folder.lower().startswith("content"):
+                    content_path = pathlib.Path(str(root)).joinpath(folder)
+                    progressbar.set(0.9)
+                    clean_folder(content_path)
+                    if add_to_database(content_path, current_item):
+                        return False
+                    shutil.copytree(content_path, get_library_path(), dirs_exist_ok=True)
+                    return True
         if any(target in dirs for target in target_folders):
             progressbar.set(0.9)
             clean_folder(root)
