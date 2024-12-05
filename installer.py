@@ -69,7 +69,6 @@ def extract_archive(item_path, is_debug_mode):
 # Removes everything in temp folder that is not one of the target folders before importing to library
 def clean_folder(folder_path):
     for item_path in pathlib.Path(folder_path).iterdir():
-        item = item_path.name
         if item_path.is_file():
             item_path.unlink()
 
@@ -83,7 +82,7 @@ def add_to_database(root_path, item):
             if files:
                 for file in files:
                     file_list.append(str((pathlib.Path(get_relative_path(str(root))).joinpath(file))))
-    if content_database.archive_exist(archive_name, file_list):
+    if content_database.does_archive_exist(archive_name, file_list):
         logger.info(f"Archive '{archive_name}' already exists in the database.")
         return True
     logger.info(f"Adding archive '{archive_name}' with {len(file_list)} files to the database.")
@@ -141,7 +140,7 @@ def start_installer_gui(file_path, progressbar, is_delete_archive=False) -> bool
         progressbar.set(0.1)
         if not extract_archive(file_path, get_debug_mode()):
             clean_temp_folder()
-            return
+            return is_archive_imported
         progressbar.set(0.4)
         if traverse_directory(temp_folder, pathlib.Path(file_path), progressbar,  get_debug_mode()):
             is_archive_imported = True

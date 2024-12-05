@@ -67,30 +67,32 @@ def delete_archive(archive_name):
         conn.close()
 
 
-def archive_exist(archive_name, file_list):
-    conn = connect_database()
-    cursor = conn.cursor()
-    # Get the number of files to check against
+def does_archive_exist(archive_name: str, file_list: list[str]) -> bool:
+    """
+    Check if an archive exists in the database with the same name and file count.
+
+    Args:
+        archive_name (str): The name of the archive to check.
+        file_list (List[str]): The list of files to compare against.
+
+    Returns:
+        bool: True if an archive with the same name and file count exists, False otherwise.
+    """
     file_count = len(file_list)
-
-    # Query to check if an archive with the same number of files exists
-    cursor.execute('''
-        SELECT a.archive_name FROM archives a
-        JOIN files f ON a.id = f.archive_id
-        GROUP BY a.id
-        HAVING COUNT(f.id) = ?
-    ''', (file_count,))
-
-    existing_archives = cursor.fetchall()
-
-    # Check if the specific archive_name already exists with the same file count
-    if existing_archives:
-        for existing_archive in existing_archives:
-            if existing_archive[0] == archive_name:
-                conn.close()
-                return True
-    conn.close()
-    return False
+    with connect_database() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            '''
+            SELECT COUNT(*) FROM archives a
+            JOIN files f ON a.id = f.archive_id
+            WHERE a.archive_name = ?
+            GROUP BY a.id
+            HAVING COUNT(f.id) = ?
+            ''',
+            (archive_name, file_count),
+        )
+        result = cursor.fetchone()
+        return result is not None
 
 def connect_database():
     conn = sqlite3.connect('database/archives.db')
