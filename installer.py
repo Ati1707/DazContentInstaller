@@ -70,9 +70,7 @@ def extract_archive(item_path, is_debug_mode):
 def clean_folder(folder_path):
     for item_path in pathlib.Path(folder_path).iterdir():
         item = item_path.name
-        if item_path.is_dir() and item not in target_folders:
-            shutil.rmtree(item_path)
-        elif item_path.is_file():
+        if item_path.is_file():
             item_path.unlink()
 
 def add_to_database(root_path, item):
@@ -94,8 +92,9 @@ def add_to_database(root_path, item):
 
 
 # Searching the content of extracted archive for target folders
-def traverse_directory(folder_path, current_item, progressbar, is_debug_mode):
+def traverse_directory(folder_path, current_item, progressbar, is_debug_mode, is_nested_archive = False):
     archive_extracted = False
+    manifest_exists = False
     for root, dirs, files in pathlib.Path(folder_path).walk():
         for file in files:
             if file.lower().endswith(('.zip', '.rar', '7z', '.tar')):
@@ -106,10 +105,24 @@ def traverse_directory(folder_path, current_item, progressbar, is_debug_mode):
                 time.sleep(0.5)
                 pathlib.Path(root).joinpath(file).unlink()
                 archive_extracted = True
+            if file.lower().endswith("manifest.dsx"):
+                manifest_exists = True
+
         progressbar.set(progressbar.get() + 0.1)
         if archive_extracted:
             progressbar.set(progressbar.get()+0.1)
-            return traverse_directory(folder_path, current_item, progressbar,  is_debug_mode)
+            is_nested_archive = archive_extracted
+            return traverse_directory(folder_path, current_item, progressbar,  is_debug_mode, is_nested_archive)
+        if manifest_exists:
+            for folder in dirs:
+                if folder.lower().startswith("content"):
+                    content_path = pathlib.Path(str(root)).joinpath(folder)
+                    progressbar.set(0.9)
+                    clean_folder(content_path)
+                    if add_to_database(content_path, current_item):
+                        return False
+                    shutil.copytree(content_path, get_library_path(), dirs_exist_ok=True)
+                    return True
         if any(target in dirs for target in target_folders):
             progressbar.set(0.9)
             clean_folder(root)
