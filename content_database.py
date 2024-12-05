@@ -2,11 +2,34 @@ import logging
 import pathlib
 import sqlite3
 import threading
+from typing import Tuple
 
 from helper.config_operations import get_library_path
 
 
 lock = threading.Lock()
+
+def connect_database(db_path: str = "database/archives.db") -> sqlite3.Connection:
+    """Connect to the SQLite database and ensure necessary tables exist."""
+    conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA foreign_keys = ON")
+
+    with conn:
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS archives (
+                id INTEGER PRIMARY KEY,
+                archive_name TEXT NOT NULL
+            )
+        ''')
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS files (
+                id INTEGER PRIMARY KEY,
+                archive_id INTEGER,
+                file_name TEXT NOT NULL,
+                FOREIGN KEY (archive_id) REFERENCES archives (id) ON DELETE CASCADE
+            )
+        ''')
+    return conn
 
 # Function to add a new archive and its files
 def add_archive(archive_name, files):
@@ -93,26 +116,3 @@ def does_archive_exist(archive_name: str, file_list: list[str]) -> bool:
         )
         result = cursor.fetchone()
         return result is not None
-
-def connect_database():
-    conn = sqlite3.connect('database/archives.db')
-    cursor = conn.cursor()
-    cursor.execute('PRAGMA foreign_keys = ON')
-    conn.commit()
-
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS archives (
-            id INTEGER PRIMARY KEY,
-            archive_name TEXT NOT NULL
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS files (
-            id INTEGER PRIMARY KEY,
-            archive_id INTEGER,
-            file_name TEXT NOT NULL,
-            FOREIGN KEY (archive_id) REFERENCES archives (id) ON DELETE CASCADE
-        )
-    ''')
-    conn.commit()
-    return conn
