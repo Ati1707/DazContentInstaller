@@ -12,67 +12,104 @@ def get_file_from_path(file_path):
 def get_file_name_without_extension(file):
     return file.rpartition(".")[0]
 
+
+def create_folder(folder_path: str) -> None:
+    """
+    Creates a folder if it does not already exist.
+
+    Args:
+        folder_path (str): The path to the folder.
+    """
+    folder = Path(folder_path)
+    if not folder.exists():
+        folder.mkdir(parents=True, exist_ok=True)
+
+
 def create_database_folder() -> bool:
-    """Also returns a boolean to check if it's a users first time starting the tool"""
-    if not Path.exists(Path("database/")):
-        Path.mkdir(Path("database/"))
+    """
+    Creates the 'database/' folder if it doesn't exist.
+
+    Returns:
+        bool: True if the folder was created (indicating first-time use), False otherwise.
+    """
+    database_path = Path("database/")
+    if not database_path.exists():
+        database_path.mkdir(parents=True, exist_ok=True)
         return True
+    return False
 
-def create_log_folder():
-    if not Path.exists(Path("logs/")):
-        Path.mkdir(Path("logs/"))
 
-def create_temp_folder():
-    if not Path.exists(Path("temp/")):
-        Path.mkdir(Path("temp/"))
+def create_log_folder() -> None:
+    create_folder("logs/")
 
-def delete_temp_folder():
-    if Path.exists(Path("temp/")):
-        shutil.rmtree("temp/")
+
+def create_temp_folder() -> None:
+    create_folder("temp/")
+
+
+def delete_temp_folder() -> None:
+    temp_path = Path("temp/")
+    if temp_path.exists():
+        shutil.rmtree(temp_path)
 
 def get_file_size(file_path):
-    return _convert_size(Path(file_path).stat().st_size)
+    file = Path(file_path)
+    if not file.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return _convert_size(file.stat().st_size)
 
-def _convert_size(size_bytes):
-    # Edge case for size 0 bytes
+
+def _convert_size(size_bytes: int) -> str:
+    """
+    Converts a file size in bytes to a human-readable format.
+
+    Args:
+        size_bytes (int): The file size in bytes.
+
+    Returns:
+        str: The file size in human-readable format (e.g., KB, MB).
+    """
     if size_bytes == 0:
         return "0 B"
 
-    # List of size units
-    size_units = ["B", "KB", "MB", "GB"]
+    size_units = ["B", "KB", "MB", "GB", "TB"]
     i = 0
-
-    # Convert to larger units until size is below 1024
     while size_bytes >= 1024 and i < len(size_units) - 1:
         size_bytes /= 1024
         i += 1
 
-    # Return formatted size with 2 decimal places
     return f"{size_bytes:.2f} {size_units[i]}"
 
-def limit_logger_files():
-    """Function to delete the oldest log file when there are already 3 present"""
+
+def limit_logger_files() -> None:
+    """
+    Deletes the oldest log files when the number of log files exceeds the limit.
+    """
     log_dir = Path("logs/")
-    log_files = list(log_dir.iterdir())  # Get all files in the directory
+
+    log_files = sorted(log_dir.iterdir(), key=lambda f: f.stat().st_ctime)
 
     if len(log_files) > 2:
-        # Sort files by creation time (ascending order, oldest first)
-        log_files_sorted = sorted(log_files, key=lambda f: f.stat().st_ctime)
-
-        # Delete the oldest files to ensure only 2 are kept
         files_to_delete = len(log_files) - 2
-        for file in log_files_sorted[:files_to_delete]:
+        for file in log_files[:files_to_delete]:
             file.unlink()
 
-def create_logger():
+
+def create_logger() -> logging.Logger:
+    """
+    Sets up the logging configuration and creates a new log file.
+
+    Returns:
+        logging.Logger: A configured logger instance.
+    """
     create_log_folder()
     limit_logger_files()
-    now = datetime.now()
-    now = now.strftime("%d.%m.%Y %H-%M-%S")
-    log_file = f"logs/{now}.log"
+    now = datetime.now().strftime("%d.%m.%Y %H-%M-%S")
+    log_file = Path("logs") / f"{now}.log"
     logging.basicConfig(
-        filename=log_file,
+        filename=str(log_file),
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s", datefmt='%m/%d/%Y %I:%M:%S'
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        datefmt='%m/%d/%Y %I:%M:%S'
     )
     return logging.getLogger(__name__)
