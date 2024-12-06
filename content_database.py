@@ -1,8 +1,7 @@
 import logging
-import pathlib
 import sqlite3
 import threading
-from typing import Tuple
+from pathlib import Path
 
 from helper.config_operations import get_library_path
 
@@ -31,22 +30,34 @@ def connect_database(db_path: str = "database/archives.db") -> sqlite3.Connectio
         ''')
     return conn
 
-# Add a new archive and its files
 def add_archive(archive_name: str, files: list[str]) -> None:
-    """Add a new archive and its associated files."""
+    """
+    Add a new archive and its associated files to the database.
+
+    Args:
+        archive_name (str): The name of the archive.
+        files (List[str]): A list of file names to associate with the archive.
+    """
     with connect_database() as conn:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO archives (archive_name) VALUES (?)", (archive_name,))
-        archive_id = cursor.lastrowid
-        cursor.executemany(
-            "INSERT INTO files (archive_id, file_name) VALUES (?, ?)",
-            [(archive_id, file_name) for file_name in files],
-        )
-        logging.info(f"Archive '{archive_name}' added with {len(files)} files.")
+        try:
+            cursor.execute("INSERT INTO archives (archive_name) VALUES (?)", (archive_name,))
+            archive_id = cursor.lastrowid
+            cursor.executemany(
+                "INSERT INTO files (archive_id, file_name) VALUES (?, ?)",
+                [(archive_id, file_name) for file_name in files],
+            )
+            logging.info(f"Archive '{archive_name}' added with {len(files)} files.")
+        except sqlite3.IntegrityError:
+            logging.error(f"Archive '{archive_name}' already exists. Skipping.")
 
-# Retrieve all archives and their file counts
 def get_archives() -> list[tuple[str, str]]:
-    """Retrieve a list of all archives and their file counts."""
+    """
+    Retrieve a list of all archives and their file counts.
+
+    Returns:
+        list[tuple[str, str]]: A list of tuples containing the archive name and file count.
+    """
     with connect_database() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT id, archive_name FROM archives")
@@ -63,36 +74,40 @@ def get_archives() -> list[tuple[str, str]]:
         return archive_list
 
 
-# Function to delete an archive and its associated files
-def delete_archive(archive_name):
-    with lock:
-        logger = logging.getLogger(__name__)
-        conn = connect_database()
-        cursor = conn.cursor()
-        # Retrieve the archive ID and associated files
-        cursor.execute("SELECT id FROM archives WHERE archive_name = ?", (archive_name,))
-        result = cursor.fetchone()
+def delete_archive(archive_name: str) -> None:
+    """
+    Delete an archive and its associated files from the database and filesystem.
 
-        if result:
+    Args:
+        archive_name (str): The name of the archive to delete.
+    """
+    with lock:  # Ensure thread safety
+        with connect_database() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM archives WHERE archive_name = ?", (archive_name,))
+            result = cursor.fetchone()
+
+            if not result:
+                logging.info(f"Archive '{archive_name}' not found.")
+                return
+
             archive_id = result[0]
-
             cursor.execute("SELECT file_name FROM files WHERE archive_id = ?", (archive_id,))
             files = cursor.fetchall()
-            # Loop through and print the files to be deleted
-            if files:
-                for file in files:
-                    file_path = pathlib.Path(get_library_path()).joinpath(file[0])
-                    if pathlib.Path(file_path).exists():
-                        pathlib.Path(file_path).unlink()
 
-            # Delete the archive (this will also delete associated files due to ON DELETE CASCADE)
+            # Delete associated files from the filesystem
+            for (file_name,) in files:
+                file_path = Path(get_library_path()) / file_name
+                try:
+                    if file_path.exists():
+                        file_path.unlink()
+                        logging.info(f"Deleted file: {file_path}")
+                except Exception as e:
+                    logging.error(f"Error deleting file {file_path}: {e}")
+
+            # Delete the archive and its entries in the database
             cursor.execute("DELETE FROM archives WHERE id = ?", (archive_id,))
-            conn.commit()
-
-            logger.info(f"Archive '{archive_name}' and its files have been deleted.")
-        else:
-            logger.info(f"Archive '{archive_name}' not found.")
-        conn.close()
+            logging.info(f"Archive '{archive_name}' and its files have been deleted.")
 
 
 def does_archive_exist(archive_name: str, file_list: list[str]) -> bool:
