@@ -40,66 +40,92 @@ def start_install_thread(target_function):
 
 
 class AssetWidget(ctk.CTkFrame):
+    """
+    Custom widget to represent an asset in the UI.
+    """
     def __init__(self, parent, tab_name: str, asset_name: str = "", file_path: str = ""):
         super().__init__(parent)
         self.asset_name = asset_name
         self.file_path = file_path
         self.file_size = file_operations.get_file_size(self.file_path)
 
-        # Checkbox for the asset
-        self.checkbox = ctk.CTkCheckBox(self, text=truncate_string(asset_name))
+        # Checkbox for asset selection
+        self.checkbox = ctk.CTkCheckBox(self, text=truncate_string(self.asset_name))
         self.checkbox.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        # Tooltip for the checkbox
-        self.tooltip = CTkToolTip(self.checkbox, message=asset_name, delay=0.2)
+        # Tooltip for additional info
+        self.tooltip = CTkToolTip(self.checkbox, message=self.asset_name, delay=0.2)
 
-        # Install button
+        # Install or Uninstall button
         if tab_name == "Install":
-            self.progressbar = ctk.CTkProgressBar(self)
-            self.progressbar.set(-1)
-            self.progressbar.grid(row=0, column=1, padx=20, pady=10, sticky="w")
-
-            self.label = CTkLabel(self, text=self.file_size)
-            self.label.grid(row=0, column=2, padx=20, pady=10, sticky="w")
-
-            # Install button
-            self.button = ctk.CTkButton(self, text=tab_name, command=lambda: start_install_thread(self.install_asset))
-            self.button.grid(row=0, column=3, padx=20, pady=10, sticky="e")
+            self._create_install_widgets()
         else:
+            self._create_uninstall_widgets()
 
-            # Uninstall button
-            self.button = ctk.CTkButton(self, text=tab_name, command=self.remove_asset)
-            self.button.grid(row=0, column=1, padx=20, pady=10, sticky="e")
-
-        # Column configuration for layout
+        # Configure layout
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=0)
         self.columnconfigure(2, weight=0)
         self.columnconfigure(3, weight=0)
 
+    def _create_install_widgets(self):
+        """Creates widgets specific to the 'Install' tab."""
+        self.progressbar = ctk.CTkProgressBar(self)
+        self.progressbar.set(0)
+        self.progressbar.grid(row=0, column=1, padx=20, pady=10, sticky="w")
+
+        self.label = CTkLabel(self, text=self.file_size)
+        self.label.grid(row=0, column=2, padx=20, pady=10, sticky="w")
+
+        self.button = ctk.CTkButton(self, text="Install", command=lambda: start_install_thread(self.install_asset))
+        self.button.grid(row=0, column=3, padx=20, pady=10, sticky="e")
+
+    def _create_uninstall_widgets(self):
+        """Creates widgets specific to the 'Uninstall' tab."""
+        self.button = ctk.CTkButton(self, text="Remove", command=self.remove_asset)
+        self.button.grid(row=0, column=1, padx=20, pady=10, sticky="e")
+
 
     def remove_from_view(self):
-        install_asset_list.remove(self)
+        """
+        Removes the asset widget from the UI and the installation list.
+        """
+        if self in install_asset_list:
+            install_asset_list.remove(self)
         self.grid_remove()
 
     def install_asset(self):
-        """Installs the asset and removes its widget from the grid."""
-        self.button.configure(state=DISABLED)
-        archive_imported = start_installer_gui(self.file_path, self.progressbar, is_delete_archive=self.winfo_toplevel().tab_view.is_delete_archive.get())
+        """
+        Installs the asset and removes its widget from the grid.
+        """
+        self.button.configure(state=DISABLED)  # Disable the button during installation
+        archive_imported = start_installer_gui(
+            self.file_path,
+            self.progressbar,
+            is_delete_archive=self.winfo_toplevel().tab_view.is_delete_archive.get()
+        )
         if not archive_imported:
-            CTkMessagebox(title="Warning Message!", message=f"The archive: {self.asset_name} was not imported. Check the log for more info", icon="warning")
-        install_asset_list.remove(self)
-        self.grid_remove()
+            CTkMessagebox(
+                title="Warning",
+                message=f"The archive '{self.asset_name}' was not imported. Check the log for more info.",
+                icon="warning"
+            )
+        self.remove_from_view()
 
     def remove_asset(self):
-        """Removes the asset."""
+        """
+        Removes the asset from the database and the uninstall list.
+        """
         delete_archive(self.asset_name)
-        remove_asset_list.remove(self)
+        if self in remove_asset_list:
+            remove_asset_list.remove(self)
         self.grid_remove()
 
-
 class MyTabView(ctk.CTkTabview):
-    def __init__(self, master,  **kwargs):
+    """
+    Custom tab view for managing install and uninstall tabs.
+    """
+    def __init__(self, master, **kwargs):
         super().__init__(master, command=self.refresh_tab, **kwargs)
         self.is_delete_archive = BooleanVar()
         self.create_tabs()
@@ -107,26 +133,26 @@ class MyTabView(ctk.CTkTabview):
         self.create_uninstall_widgets()
 
     def create_tabs(self):
-        """Initializes the 'Install' and 'Uninstall' tabs."""
+        """
+        Initializes the 'Install' and 'Uninstall' tabs.
+        """
         install_tab = self.add("Install")
         uninstall_tab = self.add("Uninstall")
-        self.tab("Install")
 
         # Configure tabs
         install_tab.grid_columnconfigure(0, weight=1)
         install_tab.grid_rowconfigure(1, weight=1)
-
         uninstall_tab.grid_columnconfigure(0, weight=1)
         uninstall_tab.grid_rowconfigure(1, weight=1)
 
-        # 'Check All' checkbox
+        # 'Check All' checkboxes
         self.check_install = ctk.CTkCheckBox(install_tab, text="Check all", command=self.toggle_all_checkboxes)
         self.check_install.grid(row=0, column=0, sticky="we")
 
         self.check_uninstall = ctk.CTkCheckBox(uninstall_tab, text="Check all", command=self.toggle_all_checkboxes)
         self.check_uninstall.grid(row=0, column=0, sticky="we")
 
-        # Scrollable frame for install tab
+        # Scrollable frames for each tab
         self.scrollable_frame = ctk.CTkScrollableFrame(install_tab, width=600, height=500)
         self.scrollable_frame.grid(row=1, column=0, sticky="news")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
@@ -136,7 +162,9 @@ class MyTabView(ctk.CTkTabview):
         self.uninstall_scrollable_frame.grid_columnconfigure(0, weight=1)
 
     def toggle_all_checkboxes(self):
-        """Checks or unchecks all asset checkboxes based on the 'Check all' checkbox."""
+        """
+        Toggles all checkboxes in the 'Install' and 'Uninstall' tabs.
+        """
         if self.check_install.get():
             for asset in install_asset_list:
                 asset.checkbox.select()
@@ -153,15 +181,18 @@ class MyTabView(ctk.CTkTabview):
 
 
     def create_uninstall_widgets(self):
-        """Creates widgets for the uninstall tab."""
+        """
+        Creates widgets for the 'Uninstall' tab.
+        """
         uninstall_tab = self.tab("Uninstall")
-
-        # Uninstall selected button
+   
         uninstall_button = ctk.CTkButton(uninstall_tab, text="Remove selected", command=self.remove_assets)
         uninstall_button.grid(row=2, column=0, padx=20, pady=10, sticky="se")
 
     def create_install_widgets(self):
-        """Creates widgets for the install tab."""
+        """
+        Creates widgets for the 'Install' tab.
+        """
         install_tab = self.tab("Install")
 
         install_frame = ctk.CTkFrame(install_tab)
