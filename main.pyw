@@ -121,7 +121,6 @@ class AssetWidget(ctk.CTkFrame):
             remove_asset_list.remove(self)
         self.grid_remove()
 
-
 class MyTabView(ctk.CTkTabview):
     """
     Custom tab view for managing install and uninstall tabs.
@@ -186,6 +185,7 @@ class MyTabView(ctk.CTkTabview):
         Creates widgets for the 'Uninstall' tab.
         """
         uninstall_tab = self.tab("Uninstall")
+   
         uninstall_button = ctk.CTkButton(uninstall_tab, text="Remove selected", command=self.remove_assets)
         uninstall_button.grid(row=2, column=0, padx=20, pady=10, sticky="se")
 
