@@ -3,8 +3,7 @@ import sqlite3
 import threading
 from pathlib import Path
 
-from helper.config_operations import get_library_path
-
+from helper.config_operations import get_library_path, get_debug_mode
 
 lock = threading.Lock()
 
@@ -101,7 +100,8 @@ def delete_archive(archive_name: str) -> None:
                 try:
                     if file_path.exists():
                         file_path.unlink()
-                        logging.info(f"Deleted file: {file_path}")
+                        if get_debug_mode():
+                            logging.info(f"Deleted file: {file_path}")
                 except Exception as e:
                     logging.error(f"Error deleting file {file_path}: {e}")
 

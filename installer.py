@@ -37,6 +37,8 @@ SEVEN_ZIP_PATH = BASE_PATH / "7z/7z.exe"
 # Create a threading lock
 lock = threading.Lock()
 
+archive_exists = False
+
 
 def get_relative_path(full_path: str) -> str:
     """
@@ -100,6 +102,8 @@ def add_to_database(root_path: pathlib.Path, item: pathlib.Path) -> bool:
 
     if content_database.does_archive_exist(archive_name, file_list):
         logger.info(f"Archive '{archive_name}' already exists in the database.")
+        global archive_exists
+        archive_exists = True
         return True
     else:
         logger.info(f"Adding archive '{archive_name}' with {len(file_list)} files to the database.")
@@ -145,13 +149,16 @@ def process_manifest_and_target_folders(root_path, dirs, files, progressbar, cur
             if manifest_exists and folder.lower().startswith("content"):
                 content_path = root_path / folder
                 clean_folder(content_path)
+                progressbar.set(progressbar.get() + 0.1)
                 if add_to_database(content_path, current_item):
+                    progressbar.set(progressbar.get() + 0.1)
                     return False
                 shutil.copytree(content_path, get_library_path(), dirs_exist_ok=True)
                 return True
 
             if any(target.lower() == folder.lower() for target in TARGET_FOLDERS):
                 clean_folder(root_path)
+                progressbar.set(progressbar.get() + 0.1)
                 if add_to_database(root_path, current_item):
                     return False
                 shutil.copytree(root_path, get_library_path(), dirs_exist_ok=True)
@@ -165,10 +172,17 @@ def traverse_directory(folder_path: pathlib.Path, current_item: pathlib.Path, pr
     """
     for root, dirs, files in folder_path.walk():
         root_path = pathlib.Path(root)
+
         if handle_nested_archives(root_path, files, is_debug_mode):
+            progressbar.set(progressbar.get() + 0.1)
             return traverse_directory(folder_path, current_item, progressbar, is_debug_mode)
         if process_manifest_and_target_folders(root_path, dirs, files, progressbar, current_item):
+            progressbar.set(progressbar.get() + 0.1)
             return True
+        if archive_exists:
+            return False
+        progressbar.set(progressbar.get() + 0.1)
+
     return False
 
 
