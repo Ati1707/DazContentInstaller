@@ -26,4 +26,4 @@ To use the debug mode, open the config.ini and change the DebugMode value to tru
 [PyInstaller](https://github.com/pyinstaller/pyinstaller) to create the binary
 ## Screenshot
 
-![grafik](https://github.com/user-attachments/assets/80c2cc1a-831f-4707-a11a-1d306879701f)
+![Screnshot](https://github.com/user-attachments/assets/50b5b1c3-a2aa-4de1-83e8-56f28c339d2a)
