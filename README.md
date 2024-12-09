@@ -8,7 +8,7 @@ DazContentInstaller is a user-friendly tool designed to simplify the process of 
 You can either get the [Release](https://github.com/Ati1707/DazContentInstaller/releases) or clone the repository and install the requirements to run the main file with Python:
 
 1. You can either drag and drop your archives or add them with the button below
-2. If an archive cannot be imported, you will receive a warning or an error in the log. You need to manually import those if the archive is not corrupt.
+2. If an archive cannot be imported, you will receive a warning or an error. You need to manually import those if the archive is not corrupt.
 3. To remove an asset from the library switch to the Uninstall tab
 
 ## Debug mode
