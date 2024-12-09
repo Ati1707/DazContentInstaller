@@ -6,7 +6,7 @@ from CTkMessagebox import CTkMessagebox
 from CTkToolTip import CTkToolTip
 from content_database import get_archives, delete_archive
 from customtkinter import CTk, filedialog, CTkLabel
-from helper import file_operations
+from helper import file_operations, updater
 from installer import start_installer_gui
 from tkinter import BooleanVar
 from tkinter.constants import DISABLED, NORMAL
@@ -285,9 +285,11 @@ class MyTabView(ctk.CTkTabview):
 
 
 class App(CTk):
-    def __init__(self):
+    local_version = "v0.8.2"
+
+    def __init__(self, local_version=local_version):
         super().__init__()
-        self.title("Daz Content Installer")
+        self.title(f"Daz Content Installer {local_version}")
         self.geometry(center_window_to_display(self, 1100, 650, self._get_window_scaling()))
 
         # Initialize and place MyTabView
@@ -311,6 +313,14 @@ class App(CTk):
             if msg.get() == "Open configuration file":
                 open("config.ini")
 
+        if updater.is_new_update_available(local_version):
+            msg = CTkMessagebox(title="Info",
+                          message="A new update is available! Do you want to open the GitHub repository?",
+                          option_1="Cancel",
+                          option_2="Open",
+                          width=500, height=250)
+            if msg.get() == "Open":
+                updater.open_release_page()
 
 # Run the application
 app = App()
