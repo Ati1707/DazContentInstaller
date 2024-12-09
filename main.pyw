@@ -285,7 +285,7 @@ class MyTabView(ctk.CTkTabview):
 
 
 class App(CTk):
-    local_version = "v0.8.2"
+    local_version = "v0.9"
 
     def __init__(self, local_version=local_version):
         super().__init__()
