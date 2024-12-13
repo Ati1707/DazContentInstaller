@@ -65,7 +65,7 @@ def extract_archive(item_path: pathlib.Path, is_debug_mode: bool) -> bool:
     Extract an archive into the temporary folder.
     """
     base_item_name = item_path.name
-    if base_item_name.lower().endswith(('.zip', '.rar', '7z', '.tar')):
+    if base_item_name.lower().endswith(('.zip', '.rar', '.7z', '.tar')):
         logger.info(f"Extracting {base_item_name}")
         try:
             verbosity = 2 if is_debug_mode else -1
@@ -119,7 +119,7 @@ def handle_nested_archives(root_path, files, is_debug_mode):
     archive_extracted = False
     for file in files:
         file_path = root_path / file
-        if file.lower().endswith(('.zip', '.rar', '7z', '.tar')):
+        if file.lower().endswith(('.zip', '.rar', '.7z', '.tar')):
             logger.info(f"Extracting nested archive: {file}")
             try:
                 verbosity = 2 if is_debug_mode else -1

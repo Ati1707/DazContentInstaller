@@ -7,6 +7,7 @@ from CTkToolTip import CTkToolTip
 from content_database import get_archives, delete_archive
 from customtkinter import CTk, filedialog, CTkLabel
 from helper import file_operations, updater
+from helper.file_operations import is_file_archive
 from installer import start_installer_gui
 from tkinter import BooleanVar
 from tkinter.constants import DISABLED, NORMAL
@@ -230,7 +231,13 @@ class MyTabView(ctk.CTkTabview):
         if file_path:
             file_name = file_operations.get_file_from_path(file_path)
             asset_name = file_operations.get_file_name_without_extension(file_name)
-            self.add_asset_widget(asset_name, file_path)
+            if is_file_archive(file_name):
+                self.add_asset_widget(asset_name, file_path)
+            else:
+                CTkMessagebox(title="Info",
+                                    message="The File is not an archive",
+                                    option_1="Okay",
+                                    width=500, height=250)
 
     def remove_selected(self):
         temp_install_list = install_asset_list.copy()
@@ -265,9 +272,15 @@ class MyTabView(ctk.CTkTabview):
     def drop_files(self, files):
         """Handles file drop to create asset widgets."""
         for file_path in files:
-            file_name = file_operations.get_file_from_path(file_path)
-            asset_name = file_operations.get_file_name_without_extension(file_name)
-            self.after(50, self.add_asset_widget, asset_name, file_path)
+            if is_file_archive(file_path):
+                file_name = file_operations.get_file_from_path(file_path)
+                asset_name = file_operations.get_file_name_without_extension(file_name)
+                self.after(50, self.add_asset_widget, asset_name, file_path)
+            else:
+                CTkMessagebox(title="Info",
+                                    message="The File is not an archive",
+                                    option_1="Okay",
+                                    width=500, height=250)
 
 
     def refresh_tab(self):

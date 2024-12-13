@@ -113,3 +113,7 @@ def create_logger() -> logging.Logger:
         datefmt='%m/%d/%Y %I:%M:%S'
     )
     return logging.getLogger(__name__)
+
+def is_file_archive(file):
+    if file.lower().endswith(('.zip', '.rar', '.7z', '.tar')):
+        return True
