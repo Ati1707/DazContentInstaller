@@ -1,12 +1,21 @@
 from PySide6.QtWidgets import QWidget, QApplication
 
 
-def center_window_to_display(window: QWidget, width: int, height: int) -> None:
-    """Centers the window on the main display"""
-    screen_geometry = QApplication.primaryScreen().availableGeometry()
-    x = (screen_geometry.width() - width) // 2
-    y = (screen_geometry.height() - height) // 2
-    window.setGeometry(x, y, width, height)
+def center_window(window: QWidget, width: int, height: int) -> None:
+    """Centers and resizes the window to the center of the screen, adjusted for OS scaling."""
+    screen = QApplication.primaryScreen()
+    # Get the OS scaling factor
+    scaling_factor = screen.devicePixelRatio()
+    # Scale the width and height
+    scaled_width = int(width / scaling_factor)
+    scaled_height = int(height / scaling_factor)
+    # Resize the window with scaled dimensions
+    window.resize(scaled_width, scaled_height)
+    # Center the window
+    available_geometry = screen.availableGeometry()
+    frame = window.frameGeometry()
+    frame.moveCenter(available_geometry.center())
+    window.move(frame.topLeft())
 
 
 def truncate_string(text: str, max_length: int = 50) -> str:
