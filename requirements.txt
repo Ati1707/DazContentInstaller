@@ -1,5 +1,3 @@
 patool
-customtkinter
-pywinstyles
-CTkToolTip
-CTkMessagebox
+packaging
+PySide6
