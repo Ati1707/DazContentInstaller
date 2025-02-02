@@ -35,13 +35,13 @@ jobs:
       - name: Prepare distribution package
         shell: pwsh
         run: |
-          $pkgDir = "dist/DazContentInstaller"
-          New-Item -Path $pkgDir, "$pkgDir/logs" -ItemType Directory -Force
-          Copy-Item config.ini -Destination $pkgDir/
-          Move-Item dist/DazContentInstaller.exe -Destination $pkgDir/
+          $targetDir = "dist/DazContentInstaller"
+          New-Item -Path $targetDir -ItemType Directory -Force  
+          Copy-Item config.ini -Destination $targetDir/
+          Move-Item dist/DazContentInstaller.exe -Destination $targetDir/
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: DazContentInstaller
           path: dist/DazContentInstaller
