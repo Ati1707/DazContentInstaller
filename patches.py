@@ -16,6 +16,7 @@ def patched_run_checked(cmd, ret_ok=(0,), **kwargs):
 
     return retcode
 
+
 def patched_guess_mime_file(filename: str) -> tuple[str | None, str | None]:
     """Determine MIME type of filename with file(1):
      (a) using `file --brief --mime-type`
@@ -26,7 +27,7 @@ def patched_guess_mime_file(filename: str) -> tuple[str | None, str | None]:
     """
     mime, encoding = None, None
     base, ext = os.path.splitext(filename)
-    if ext.lower() in ('.alz',):
+    if ext.lower() in (".alz",):
         # let mimedb recognize these extensions
         return mime, encoding
     if os.path.isfile(filename):
@@ -50,7 +51,7 @@ def patched_guess_mime_file(filename: str) -> tuple[str | None, str | None]:
         # implementation return the original file type.
         # The following detects both cases.
         if (
-            mime2 in ('application/x-empty', 'application/octet-stream')
+            mime2 in ("application/x-empty", "application/octet-stream")
             or mime2 in Mime2Encoding
             or not mime2
         ):
@@ -65,6 +66,7 @@ def patched_guess_mime_file(filename: str) -> tuple[str | None, str | None]:
             mime = mime2
             encoding = get_file_mime_encoding(outparts)
     return mime, encoding
+
 
 def patched_run(cmd: Sequence[str], verbosity: int = 0, **kwargs) -> int:
     """Run command without error checking.
@@ -84,20 +86,18 @@ def patched_run(cmd: Sequence[str], verbosity: int = 0, **kwargs) -> int:
     kwargs["input"] = ""
     if verbosity < 1:
         # hide command output on stdout
-        kwargs['stdout'] = subprocess.DEVNULL
-        kwargs['stderr'] = subprocess.DEVNULL
+        kwargs["stdout"] = subprocess.DEVNULL
+        kwargs["stderr"] = subprocess.DEVNULL
     if kwargs:
         if verbosity > 0:
             info = ", ".join(f"{k}={shell_quote(str(v))}" for k, v in kwargs.items())
             log_info(f"    with {info}")
-            kwargs['stdout'] = subprocess.PIPE
-            kwargs['stderr'] = subprocess.PIPE
+            kwargs["stdout"] = subprocess.PIPE
+            kwargs["stderr"] = subprocess.PIPE
         if kwargs.get("shell"):
             # for shell calls the command must be a string
             cmd = " ".join(cmd)
-    kwargs["creationflags"] = (
-        subprocess.CREATE_NO_WINDOW  # pytype: disable=module-attr
-    )
+    kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW  # pytype: disable=module-attr
     res = subprocess.run(cmd, text=True, **kwargs)
     if res.stdout:
         log_subprocess_output(res.stdout, level=logging.INFO)
@@ -106,10 +106,12 @@ def patched_run(cmd: Sequence[str], verbosity: int = 0, **kwargs) -> int:
         log_subprocess_output(res.stderr, level=logging.ERROR)
     return res.returncode
 
+
 def log_subprocess_output(output: str, level: int):
     logger = logging.getLogger(__name__)
     for line in output.splitlines():
         logger.log(level, line)
+
 
 # Apply the patch
 import patoolib

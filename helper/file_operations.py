@@ -5,9 +5,9 @@ from datetime import datetime
 from pathlib import Path, PurePath
 
 
-
 def get_file_from_path(file_path):
     return PurePath(file_path).name
+
 
 def get_file_name_without_extension(file):
     return file.rpartition(".")[0]
@@ -51,6 +51,7 @@ def delete_temp_folder() -> None:
     temp_path = Path("temp/")
     if temp_path.exists():
         shutil.rmtree(temp_path)
+
 
 def get_file_size(file_path):
     file = Path(file_path)
@@ -110,10 +111,11 @@ def create_logger() -> logging.Logger:
         filename=str(log_file),
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
-        datefmt='%m/%d/%Y %I:%M:%S'
+        datefmt="%m/%d/%Y %I:%M:%S",
     )
     return logging.getLogger(__name__)
 
+
 def is_file_archive(file):
-    if file.lower().endswith(('.zip', '.rar', '.7z', '.tar')):
+    if file.lower().endswith((".zip", ".rar", ".7z", ".tar")):
         return True

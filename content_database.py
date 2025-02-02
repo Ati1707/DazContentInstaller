@@ -7,27 +7,29 @@ from helper.config_operations import get_library_path, get_debug_mode
 
 lock = threading.Lock()
 
+
 def connect_database(db_path: str = "database/archives.db") -> sqlite3.Connection:
     """Connect to the SQLite database and ensure necessary tables exist."""
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON")
 
     with conn:
-        conn.execute('''
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS archives (
                 id INTEGER PRIMARY KEY,
                 archive_name TEXT NOT NULL
             )
-        ''')
-        conn.execute('''
+        """)
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS files (
                 id INTEGER PRIMARY KEY,
                 archive_id INTEGER,
                 file_name TEXT NOT NULL,
                 FOREIGN KEY (archive_id) REFERENCES archives (id) ON DELETE CASCADE
             )
-        ''')
+        """)
     return conn
+
 
 def add_archive(archive_name: str, files: list[str]) -> None:
     """
@@ -40,7 +42,9 @@ def add_archive(archive_name: str, files: list[str]) -> None:
     with connect_database() as conn:
         cursor = conn.cursor()
         try:
-            cursor.execute("INSERT INTO archives (archive_name) VALUES (?)", (archive_name,))
+            cursor.execute(
+                "INSERT INTO archives (archive_name) VALUES (?)", (archive_name,)
+            )
             archive_id = cursor.lastrowid
             cursor.executemany(
                 "INSERT INTO files (archive_id, file_name) VALUES (?, ?)",
@@ -49,6 +53,7 @@ def add_archive(archive_name: str, files: list[str]) -> None:
             logging.info(f"Archive '{archive_name}' added with {len(files)} files.")
         except sqlite3.IntegrityError:
             logging.error(f"Archive '{archive_name}' already exists. Skipping.")
+
 
 def get_archives() -> list[tuple[str, str]]:
     """
@@ -83,7 +88,9 @@ def delete_archive(archive_name: str) -> None:
     with lock:  # Ensure thread safety
         with connect_database() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT id FROM archives WHERE archive_name = ?", (archive_name,))
+            cursor.execute(
+                "SELECT id FROM archives WHERE archive_name = ?", (archive_name,)
+            )
             result = cursor.fetchone()
 
             if not result:
@@ -91,7 +98,9 @@ def delete_archive(archive_name: str) -> None:
                 return
 
             archive_id = result[0]
-            cursor.execute("SELECT file_name FROM files WHERE archive_id = ?", (archive_id,))
+            cursor.execute(
+                "SELECT file_name FROM files WHERE archive_id = ?", (archive_id,)
+            )
             files = cursor.fetchall()
 
             # Delete associated files from the filesystem
@@ -125,13 +134,13 @@ def does_archive_exist(archive_name: str, file_list: list[str]) -> bool:
     with connect_database() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            '''
+            """
             SELECT COUNT(*) FROM archives a
             JOIN files f ON a.id = f.archive_id
             WHERE a.archive_name = ?
             GROUP BY a.id
             HAVING COUNT(f.id) = ?
-            ''',
+            """,
             (archive_name, file_count),
         )
         result = cursor.fetchone()
