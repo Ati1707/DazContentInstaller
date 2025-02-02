@@ -10,7 +10,6 @@ from helper.file_operations import create_temp_folder, delete_temp_folder, creat
 from patoolib.util import PatoolError
 from PySide6.QtCore import QMutex
 import content_database
-import patches
 
 install_mutex = QMutex()
 
@@ -158,9 +157,7 @@ def handle_nested_archives(root_path, files, is_debug_mode):
     return archive_extracted
 
 
-def process_manifest_and_target_folders(
-    root_path, dirs, files, current_item
-):
+def process_manifest_and_target_folders(root_path, dirs, files, current_item):
     """
     Check for manifest files and target folders, and process them accordingly.
     """
@@ -197,12 +194,8 @@ def traverse_directory(
         root_path = pathlib.Path(root)
 
         if handle_nested_archives(root_path, files, is_debug_mode):
-            return traverse_directory(
-                folder_path, current_item, is_debug_mode
-            )
-        if process_manifest_and_target_folders(
-            root_path, dirs, files, current_item
-        ):
+            return traverse_directory(folder_path, current_item, is_debug_mode)
+        if process_manifest_and_target_folders(root_path, dirs, files, current_item):
             return True
         if archive_exists:
             return False
@@ -239,7 +232,9 @@ def start_installer_gui(
             progress_callback(70)  # Content processed and added to DB
         else:
             is_archive_imported = False
-            logger.warning(f"Failed to import {file_path}. Invalid folder structure or asset already exists.")
+            logger.warning(
+                f"Failed to import {file_path}. Invalid folder structure or asset already exists."
+            )
 
         # Cleanup temporary files
         clean_temp_folder()
