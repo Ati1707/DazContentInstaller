@@ -93,8 +93,9 @@ class InstallTab(QWidget):
 
     @staticmethod
     def toggle_install_checkboxes(state):
+        checked = state == 2  # 2 corresponds to Qt.Checked
         for asset in install_asset_list:
-            asset.checkbox.setChecked(state == asset.checkbox.setChecked)
+            asset.checkbox.setChecked(checked)
 
     def add_asset_widget(self, asset_name: str, asset_path: str):
         """Adds a new asset widget to the install scroll area."""
@@ -281,8 +282,9 @@ class MyTabView(QTabWidget):
 
     @staticmethod
     def toggle_uninstall_checkboxes(state):
+        checked = state == 2  # 2 corresponds to Qt.Checked
         for asset in remove_asset_list:
-            asset.checkbox.setChecked(state == asset.checkbox.setChecked)
+            asset.checkbox.setChecked(checked)
 
     def remove_assets(self):
         msg = QMessageBox.question(
