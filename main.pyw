@@ -153,6 +153,7 @@ class InstallTab(QWidget):
 
 class AssetWidget(QFrame):
     """Custom widget to represent an asset in the UI."""
+    installation_finished = Signal()
 
     def __init__(self, parent, tab_name: str, asset_name: str = "", file_path: str = ""):
         super().__init__(parent)
@@ -199,30 +200,37 @@ class AssetWidget(QFrame):
         self.deleteLater()
 
     def install_asset(self):
-        """Installs the asset and removes its widget from the grid."""
+        print("Start install")
         self.button.setEnabled(False)
-        thread = QThread()
-        worker = Worker(self._perform_installation)
-        worker.progress.connect(self.progressbar.setValue)
-        worker.moveToThread(thread)
-        worker.finished.connect(thread.quit)
-        worker.finished.connect(worker.deleteLater)
-        thread.started.connect(worker.run)
-        thread.start()
+        self.thread = QThread()  # Store reference
+        self.worker = Worker(self._perform_installation)
+        self.worker.progress.connect(self.progressbar.setValue)
+        self.worker.moveToThread(self.thread)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.started.connect(self.worker.run)
+        self.thread.start()
+        self.worker.finished.connect(self.remove_from_view)
 
     def _perform_installation(self, progress_callback):
-        archive_imported = start_installer_gui(
-            self.file_path,
-            progress_callback=progress_callback,
-            is_delete_archive=self.window().tab_view.is_delete_archive
-        )
-        if not archive_imported:
-            QMessageBox.warning(
-                self,
-                "Warning",
-                f"The archive '{self.asset_name}' was not imported. Check the log for more info."
+        try:
+            print("Finish install")  # This should be before running the installer
+            archive_imported = start_installer_gui(
+                self.file_path,
+                progress_callback=progress_callback,
+                is_delete_archive=self.window().tab_view.is_delete_archive
             )
-        self.remove_from_view()
+            if not archive_imported:
+                QMessageBox.warning(
+                    self,
+                    "Warning",
+                    f"The archive '{self.asset_name}' was not imported. Check the log for more info."
+                )
+            self.remove_from_view()
+        except Exception as e:
+            print(f"Error during installation: {e}")
+        finally:
+            self.installation_finished.emit()
 
     def remove_asset(self):
         """Removes the asset from the database and the uninstall list."""
