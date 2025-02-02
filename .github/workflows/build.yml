@@ -26,10 +26,10 @@ jobs:
           pip install pyinstaller -r requirements.txt
 
       - name: Build with PyInstaller
-        run: |
-          pyinstaller --noconfirm --clean --onefile \
-            --add-binary "7z/7z.exe;7z" \
-            --name DazContentInstaller \
+        run: >
+          pyinstaller --noconfirm --clean --onefile 
+            --add-binary "7z/7z.exe;7z" 
+            --name DazContentInstaller 
             main.pyw
 
       - name: Prepare distribution package
