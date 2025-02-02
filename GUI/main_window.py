@@ -1,7 +1,7 @@
 import os
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QMessageBox
 from helper import file_operations, updater
-from GUI.gui_utilities import center_window_to_display
+from GUI.gui_utilities import center_window
 from GUI.tab_view import MyTabView
 
 
@@ -11,8 +11,7 @@ class App(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(f"Daz Content Installer {self.local_version}")
-        self.resize(1100, 650)
-        center_window_to_display(self, 1100, 650)
+        center_window(self, 1100, 650)
 
         # Main widget and layout
         main_widget = QWidget()
