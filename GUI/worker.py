@@ -12,7 +12,9 @@ class Worker(QObject):
         self.kwargs = kwargs
 
     def run(self):
-        self.target_function(
+        try:
+            self.target_function(
             *self.args, progress_callback=self.progress.emit, **self.kwargs
-        )
-        self.finished.emit()
+            )
+        finally:
+            self.finished.emit()
