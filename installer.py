@@ -8,8 +8,11 @@ import time
 from helper.config_operations import get_library_path, get_debug_mode
 from helper.file_operations import create_temp_folder, delete_temp_folder, create_logger
 from patoolib.util import PatoolError
+from PySide6.QtCore import QMutex
 import content_database
 import patches
+
+install_mutex = QMutex()
 
 # Create a logger instance
 logger = create_logger()
@@ -212,7 +215,8 @@ def start_installer_gui(
 ) -> bool:
     is_archive_imported = False
     file_path = pathlib.Path(file_path)
-    with lock:
+    install_mutex.lock()
+    try:
         logger.info(f"Installing {file_path}")
         create_temp_folder()
         clean_temp_folder()
@@ -252,3 +256,5 @@ def start_installer_gui(
 
         progress_callback(100)  # Final completion
         return is_archive_imported
+    finally:
+        install_mutex.unlock()
