@@ -40,7 +40,7 @@ class Worker(QObject):
         self.kwargs = kwargs
 
     def run(self):
-        self.target_function(*self.args, **self.kwargs)
+        self.target_function(*self.args, progress_callback=self.progress.emit, **self.kwargs)
         self.finished.emit()
 
 class InstallTab(QWidget):
@@ -203,16 +203,17 @@ class AssetWidget(QFrame):
         self.button.setEnabled(False)
         thread = QThread()
         worker = Worker(self._perform_installation)
+        worker.progress.connect(self.progressbar.setValue)
         worker.moveToThread(thread)
         worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)
         thread.started.connect(worker.run)
         thread.start()
 
-    def _perform_installation(self):
+    def _perform_installation(self, progress_callback):
         archive_imported = start_installer_gui(
             self.file_path,
-            self.progressbar,
+            progress_callback=progress_callback,
             is_delete_archive=self.window().tab_view.is_delete_archive
         )
         if not archive_imported:
