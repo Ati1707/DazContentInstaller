@@ -127,6 +127,6 @@ def does_archive_exist(archive_name: str) -> bool:
         cursor = conn.cursor()
         cursor.execute(
             "SELECT EXISTS(SELECT 1 FROM archives WHERE archive_name = ?)",
-            (archive_name,)
+            (archive_name,),
         )
         return cursor.fetchone()[0] == 1
