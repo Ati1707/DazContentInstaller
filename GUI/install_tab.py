@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -23,6 +24,7 @@ class InstallTab(QWidget):
         super().__init__(parent)
         self.setup_ui()
         self.setAcceptDrops(True)  # Enable drops for this widget
+        self.is_delete_archive = False
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
@@ -50,7 +52,7 @@ class InstallTab(QWidget):
             lambda state: setattr(
                 self.parent().parent(),
                 "is_delete_archive",
-                state == self.del_archive_checkbox.checkState(),
+                state == Qt.CheckState.Checked.value,
             )
         )
         bottom_layout.addWidget(self.del_archive_checkbox)
