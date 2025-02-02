@@ -2,50 +2,46 @@ name: Build
 
 on:
   push:
-    branches:
-      - "*"
+    branches: ["*"]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
     runs-on: windows-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
-        with:
-          persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5.3.0
+      - name: Set up Python with caching
+        uses: actions/setup-python@v5.4.0
         with:
-          python-version: '>=3.10'
+          python-version: '3.10'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install pyinstaller -r requirements.txt
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --add-binary "7z/7z.exe;7z" --onefile main.pyw --name DazContentInstaller
+          pyinstaller --noconfirm --clean --onefile \
+            --add-binary "7z/7z.exe;7z" \
+            --name DazContentInstaller \
+            main.pyw
 
-      - name: Create package directory
-        run: mkdir -p dist/DazContentInstaller
-        
-      - name: Create logger directory
-        run: mkdir -p dist/DazContentInstaller/logs
-        
-      - name: Copy config.ini file
-        run: cp config.ini dist/DazContentInstaller/
-
-      - name: Move the built binary
-        run: mv dist/DazContentInstaller.exe dist/DazContentInstaller/
-
+      - name: Prepare distribution package
+        shell: pwsh
+        run: |
+          $pkgDir = "dist/DazContentInstaller"
+          New-Item -Path $pkgDir, "$pkgDir/logs" -ItemType Directory -Force
+          Copy-Item config.ini -Destination $pkgDir/
+          Move-Item dist/DazContentInstaller.exe -Destination $pkgDir/
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v4.6.0
         with:
           name: DazContentInstaller
-          path: dist/
+          path: dist/DazContentInstaller
