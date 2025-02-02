@@ -201,7 +201,6 @@ class AssetWidget(QFrame):
         self.deleteLater()
 
     def install_asset(self):
-        print("Start install")
         self.button.setEnabled(False)
         self.thread = QThread()  # Store reference
         self.worker = Worker(self._perform_installation)
@@ -215,7 +214,6 @@ class AssetWidget(QFrame):
 
     def _perform_installation(self, progress_callback):
         try:
-            print("Finish install")  # This should be before running the installer
             archive_imported = start_installer_gui(
                 self.file_path,
                 progress_callback=progress_callback,
