@@ -201,10 +201,9 @@ def traverse_directory(
 
 
 def start_installer_gui(
-        file_path: str, progress_callback, is_delete_archive: bool = False
+    file_path: str, progress_callback, is_delete_archive: bool = False
 ) -> tuple[bool, bool]:
     is_archive_imported = False
-    asset_already_exists = False
     file_path = pathlib.Path(file_path)
     install_mutex.lock()
     try:

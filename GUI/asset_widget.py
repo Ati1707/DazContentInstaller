@@ -5,7 +5,8 @@ from PySide6.QtWidgets import (
     QProgressBar,
     QLabel,
     QPushButton,
-    QMessageBox, QStyle,
+    QMessageBox,
+    QStyle,
 )
 from PySide6.QtCore import QThread, Signal
 
@@ -51,12 +52,16 @@ class AssetWidget(QFrame):
         msg_box = QMessageBox(self)
         msg_box.setIcon(QMessageBox.Icon.Warning)
         msg_box.setWindowTitle(title)
-        warning_icon = self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxWarning)
+        warning_icon = self.style().standardIcon(
+            QStyle.StandardPixmap.SP_MessageBoxWarning
+        )
         msg_box.setWindowIcon(warning_icon)
         msg_box.setText(message)
         msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
         msg_box.setModal(True)  # Block interaction with parent widget
-        msg_box.finished.connect(self.installation_finished.emit)  # Cleanup after dismissal
+        msg_box.finished.connect(
+            self.installation_finished.emit
+        )  # Cleanup after dismissal
         msg_box.show()
 
     def _create_install_widgets(self, layout):
@@ -92,7 +97,9 @@ class AssetWidget(QFrame):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.started.connect(self.worker.run)
-        self.installation_finished.connect(lambda status: self.remove_from_view())  # Single connection
+        self.installation_finished.connect(
+            lambda status: self.remove_from_view()
+        )  # Single connection
         self.thread.start()
 
     def _perform_installation(self, progress_callback):

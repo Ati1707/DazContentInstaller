@@ -14,7 +14,7 @@ class Worker(QObject):
     def run(self):
         try:
             self.target_function(
-            *self.args, progress_callback=self.progress.emit, **self.kwargs
+                *self.args, progress_callback=self.progress.emit, **self.kwargs
             )
         finally:
             self.finished.emit()
