@@ -11,12 +11,12 @@ from helper.file_operations import create_temp_folder, delete_temp_folder, creat
 from patoolib.util import PatoolError
 from PySide6.QtCore import QMutex
 import content_database
+import patches
 
 install_mutex = QMutex()
 
 # Create a logger instance
 logger = create_logger()
-
 # Path to the temporary extraction folder
 TEMP_FOLDER = pathlib.Path("temp")
 
