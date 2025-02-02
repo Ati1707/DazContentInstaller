@@ -28,9 +28,9 @@ jobs:
       - name: Build with PyInstaller
         run: >
           pyinstaller --noconfirm --clean --onefile 
-            --add-binary "7z/7z.exe;7z" 
-            --name DazContentInstaller 
-            main.pyw
+          --add-binary "7z/7z.exe;7z" 
+          --name DazContentInstaller 
+          main.pyw
 
       - name: Prepare distribution package
         shell: pwsh
