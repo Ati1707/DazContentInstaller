@@ -156,7 +156,7 @@ def handle_nested_archives(root_path, files, is_debug_mode):
 
 
 def process_manifest_and_target_folders(
-    root_path, dirs, files, progressbar, current_item
+    root_path, dirs, files, current_item
 ):
     """
     Check for manifest files and target folders, and process them accordingly.
@@ -168,16 +168,13 @@ def process_manifest_and_target_folders(
             if manifest_exists and folder.lower().startswith("content"):
                 content_path = root_path / folder
                 clean_folder(content_path)
-                progressbar.setValue(progressbar.value() + 0.1)
                 if add_to_database(content_path, current_item):
-                    progressbar.setValue(progressbar.value() + 0.1)
                     return False
                 shutil.copytree(content_path, get_library_path(), dirs_exist_ok=True)
                 return True
 
             if any(target.lower() == folder.lower() for target in TARGET_FOLDERS):
                 clean_folder(root_path)
-                progressbar.setValue(progressbar.value() + 0.1)
                 if add_to_database(root_path, current_item):
                     return False
                 shutil.copytree(root_path, get_library_path(), dirs_exist_ok=True)
@@ -188,7 +185,6 @@ def process_manifest_and_target_folders(
 def traverse_directory(
     folder_path: pathlib.Path,
     current_item: pathlib.Path,
-    progressbar,
     is_debug_mode: bool,
 ):
     """
@@ -198,62 +194,55 @@ def traverse_directory(
         root_path = pathlib.Path(root)
 
         if handle_nested_archives(root_path, files, is_debug_mode):
-            progressbar.setValue(progressbar.value() + 0.1)
             return traverse_directory(
-                folder_path, current_item, progressbar, is_debug_mode
+                folder_path, current_item, is_debug_mode
             )
         if process_manifest_and_target_folders(
-            root_path, dirs, files, progressbar, current_item
+            root_path, dirs, files, current_item
         ):
-            progressbar.setValue(progressbar.value() + 0.1)
             return True
         if archive_exists:
             return False
-        progressbar.setValue(progressbar.value() + 0.1)
 
     return False
 
 
 def start_installer_gui(
-    file_path: str, progressbar, is_delete_archive: bool = False
+    file_path: str, progress_callback, is_delete_archive: bool = False
 ) -> bool:
-    """
-    Main function to handle the installation process via the GUI.
-
-    Args:
-        file_path (str): The path of the archive to process as a string.
-        progressbar: A GUI progress bar object to track progress.
-        is_delete_archive (bool): Whether to delete the archive after installation.
-
-    Returns:
-        bool: True if the archive was successfully imported, False otherwise.
-    """
     is_archive_imported = False
     file_path = pathlib.Path(file_path)
     with lock:
         logger.info(f"Installing {file_path}")
         create_temp_folder()
         clean_temp_folder()
-        progressbar.setValue(0.1)
+        progress_callback(10)  # Initial setup complete
 
+        # Attempt to extract the main archive
         if not extract_archive(file_path, get_debug_mode()):
             clean_temp_folder()
+            delete_temp_folder()
+            progress_callback(100)  # Ensure progress completes even on failure
             return is_archive_imported
 
-        progressbar.setValue(0.4)
+        progress_callback(40)  # Main archive extracted
 
-        if traverse_directory(TEMP_FOLDER, file_path, progressbar, get_debug_mode()):
+        # Process extracted content
+        traversal_success = traverse_directory(TEMP_FOLDER, file_path, get_debug_mode())
+        if traversal_success:
             is_archive_imported = True
             logger.info(f"Successfully imported: {file_path}")
+            progress_callback(70)  # Content processed and added to DB
         else:
             is_archive_imported = False
-            logger.warning(
-                f"Failed to import {file_path}. Invalid folder structure or asset already exists."
-            )
+            logger.warning(f"Failed to import {file_path}. Invalid folder structure or asset already exists.")
 
+        # Cleanup temporary files
         clean_temp_folder()
         delete_temp_folder()
+        progress_callback(90)  # Temporary files cleaned up
 
+        # Delete original archive if requested
         if is_delete_archive:
             try:
                 file_path.unlink()
@@ -261,4 +250,5 @@ def start_installer_gui(
             except Exception as e:
                 logger.error(f"Failed to delete archive {file_path}: {e}")
 
+        progress_callback(100)  # Final completion
         return is_archive_imported
