@@ -92,7 +92,7 @@ class AssetWidget(QFrame):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.started.connect(self.worker.run)
-        self.installation_finished.connect(self.remove_from_view)  # Single connection
+        self.installation_finished.connect(lambda status: self.remove_from_view())  # Single connection
         self.thread.start()
 
     def _perform_installation(self, progress_callback):
@@ -108,7 +108,7 @@ class AssetWidget(QFrame):
                     f"The archive '{self.asset_name}' was not imported. Check the log for more info.",
                 )
             else:
-                self.installation_finished.emit()  # Success: Immediate cleanup
+                self.installation_finished.emit(0)  # Success: Immediate cleanup
         except Exception as e:
             self.warning_signal.emit("Error", f"Installation failed: {str(e)}")
 
