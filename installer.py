@@ -2,6 +2,7 @@ import pathlib
 import patoolib
 import re
 import shutil
+import sqlite3
 import sys
 import threading
 import time
@@ -108,7 +109,7 @@ def clean_folder(folder_path: pathlib.Path) -> None:
 
 def add_to_database(root_path: pathlib.Path, item: pathlib.Path) -> bool:
     """
-    Add the extracted files to the content database.
+    Add files to database after confirming unique name (already checked earlier)
     """
     archive_name = item.stem.split(".")[0]
     file_list = [
@@ -117,18 +118,14 @@ def add_to_database(root_path: pathlib.Path, item: pathlib.Path) -> bool:
         if file_path.is_file()
     ]
 
-    if content_database.does_archive_exist(archive_name, file_list):
-        logger.info(f"Archive '{archive_name}' already exists in the database.")
-        global archive_exists
-        archive_exists = True
-        return True
-    else:
-        logger.info(
-            f"Adding archive '{archive_name}' with {len(file_list)} files to the database."
-        )
+    try:
+        logger.info(f"Adding archive '{archive_name}' with {len(file_list)} files.")
         content_database.add_archive(archive_name, file_list)
         time.sleep(1)
         return False
+    except sqlite3.IntegrityError:
+        logger.warning(f"Archive '{archive_name}' already exists (race condition)")
+        return True
 
 
 def handle_nested_archives(root_path, files, is_debug_mode):
@@ -204,44 +201,46 @@ def traverse_directory(
 
 
 def start_installer_gui(
-    file_path: str, progress_callback, is_delete_archive: bool = False
-) -> bool:
+        file_path: str, progress_callback, is_delete_archive: bool = False
+) -> tuple[bool, bool]:
     is_archive_imported = False
+    asset_already_exists = False
     file_path = pathlib.Path(file_path)
     install_mutex.lock()
     try:
         logger.info(f"Installing {file_path}")
+
+        # Get archive name from file path
+        archive_name = file_path.stem.split(".")[0]  # Handle double extensions
+
+        # Early check before any processing
+        if content_database.does_archive_exist(archive_name):
+            logger.warning(f"Asset already exists: {archive_name}")
+            progress_callback(100)  # Immediate completion
+            return (False, True)  # (not imported, already exists)
+
         create_temp_folder()
         clean_temp_folder()
-        progress_callback(10)  # Initial setup complete
+        progress_callback(10)
 
-        # Attempt to extract the main archive
         if not extract_archive(file_path, get_debug_mode()):
             clean_temp_folder()
             delete_temp_folder()
-            progress_callback(100)  # Ensure progress completes even on failure
-            return is_archive_imported
+            progress_callback(100)
+            return (False, False)
 
-        progress_callback(40)  # Main archive extracted
+        progress_callback(40)
 
-        # Process extracted content
+        # Simplified processing since we already checked existence
         traversal_success = traverse_directory(TEMP_FOLDER, file_path, get_debug_mode())
         if traversal_success:
             is_archive_imported = True
             logger.info(f"Successfully imported: {file_path}")
-            progress_callback(70)  # Content processed and added to DB
-        else:
-            is_archive_imported = False
-            logger.warning(
-                f"Failed to import {file_path}. Invalid folder structure or asset already exists."
-            )
 
-        # Cleanup temporary files
         clean_temp_folder()
         delete_temp_folder()
-        progress_callback(90)  # Temporary files cleaned up
+        progress_callback(90)
 
-        # Delete original archive if requested
         if is_delete_archive:
             try:
                 file_path.unlink()
@@ -249,7 +248,7 @@ def start_installer_gui(
             except Exception as e:
                 logger.error(f"Failed to delete archive {file_path}: {e}")
 
-        progress_callback(100)  # Final completion
-        return is_archive_imported
+        progress_callback(100)
+        return (is_archive_imported, False)
     finally:
         install_mutex.unlock()

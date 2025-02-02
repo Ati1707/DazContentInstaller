@@ -97,18 +97,23 @@ class AssetWidget(QFrame):
 
     def _perform_installation(self, progress_callback):
         try:
-            archive_imported = start_installer_gui(
+            imported, exists = start_installer_gui(
                 self.file_path,
                 progress_callback=progress_callback,
                 is_delete_archive=self.window().tab_view.is_delete_archive,
             )
-            if not archive_imported:
+            if exists:
                 self.warning_signal.emit(
-                    "Warning",
-                    f"The archive '{self.asset_name}' was not imported. Check the log for more info.",
+                    "Asset Exists",
+                    f"'{self.asset_name}' is already installed!",
+                )
+            elif not imported:
+                self.warning_signal.emit(
+                    "Install Failed",
+                    f"Failed to install '{self.asset_name}'. Check logs.",
                 )
             else:
-                self.installation_finished.emit(0)  # Success: Immediate cleanup
+                self.installation_finished.emit(0)
         except Exception as e:
             self.warning_signal.emit("Error", f"Installation failed: {str(e)}")
 

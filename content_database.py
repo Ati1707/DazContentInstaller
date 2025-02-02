@@ -119,29 +119,14 @@ def delete_archive(archive_name: str) -> None:
             logging.info(f"Archive '{archive_name}' and its files have been deleted.")
 
 
-def does_archive_exist(archive_name: str, file_list: list[str]) -> bool:
+def does_archive_exist(archive_name: str) -> bool:
     """
-    Check if an archive exists in the database with the same name and file count.
-
-    Args:
-        archive_name (str): The name of the archive to check.
-        file_list (List[str]): The list of files to compare against.
-
-    Returns:
-        bool: True if an archive with the same name and file count exists, False otherwise.
+    Check if an archive exists in the database by name only.
     """
-    file_count = len(file_list)
     with connect_database() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            """
-            SELECT COUNT(*) FROM archives a
-            JOIN files f ON a.id = f.archive_id
-            WHERE a.archive_name = ?
-            GROUP BY a.id
-            HAVING COUNT(f.id) = ?
-            """,
-            (archive_name, file_count),
+            "SELECT EXISTS(SELECT 1 FROM archives WHERE archive_name = ?)",
+            (archive_name,)
         )
-        result = cursor.fetchone()
-        return result is not None
+        return cursor.fetchone()[0] == 1
