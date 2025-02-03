@@ -90,8 +90,8 @@ def limit_logger_files() -> None:
 
     log_files = sorted(log_dir.iterdir(), key=lambda f: f.stat().st_ctime)
 
-    if len(log_files) > 2:
-        files_to_delete = len(log_files) - 2
+    if len(log_files) > 3:
+        files_to_delete = len(log_files) - 3
         for file in log_files[:files_to_delete]:
             file.unlink()
 
