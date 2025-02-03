@@ -28,4 +28,4 @@ This prints more info in the logs that are helpful to find bugs.
 [PyInstaller](https://github.com/pyinstaller/pyinstaller) to create the binary
 ## Screenshot
 
-![Screnshot](https://github.com/user-attachments/assets/50b5b1c3-a2aa-4de1-83e8-56f28c339d2a)
+![Screnshot](https://github.com/user-attachments/assets/c3eee28f-14c0-4dec-8f46-2dd541274a96)
