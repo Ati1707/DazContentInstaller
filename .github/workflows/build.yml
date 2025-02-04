@@ -28,9 +28,9 @@ jobs:
       - name: Build with PyInstaller
         run: >
           pyinstaller --noconfirm --clean --onefile 
-          --add-binary="7z\7z.exe:7z" 
-          --add-data="icons\favicon.ico:icons" 
-          --icon="icons\details_icon.png" 
+          --add-binary "7z\7z.exe:7z" 
+          --add-data="icons\gui_icon.ico:icons" 
+          --icon="icons\app_icon.ico" 
           --name DazContentInstaller 
           main.pyw
 

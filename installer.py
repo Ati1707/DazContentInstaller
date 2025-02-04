@@ -209,7 +209,7 @@ def start_installer_gui(
         if content_database.does_archive_exist(archive_name):
             logger.warning(f"Asset already exists: {archive_name}")
             progress_callback(100)  # Immediate completion
-            return (False, True)  # (not imported, already exists)
+            return False, True  # (not imported, already exists)
 
         create_temp_folder()
         clean_temp_folder()
@@ -219,7 +219,7 @@ def start_installer_gui(
             clean_temp_folder()
             delete_temp_folder()
             progress_callback(100)
-            return (False, False)
+            return False, False
 
         progress_callback(40)
 
