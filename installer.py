@@ -3,7 +3,6 @@ import patoolib
 import re
 import shutil
 import sqlite3
-import sys
 import threading
 import time
 from helper.config_operations import get_library_path, get_debug_mode
@@ -39,14 +38,8 @@ TARGET_FOLDERS = [
     "Documentation",
 ]
 
-# Determine base path based on execution context
-if getattr(sys, "frozen", False):
-    BASE_PATH = pathlib.Path(sys._MEIPASS)
-else:
-    BASE_PATH = pathlib.Path(__file__).parent
-
 # Path to the 7z executable
-SEVEN_ZIP_PATH = BASE_PATH / "7z/7z.exe"
+SEVEN_ZIP_PATH = str(pathlib.Path(__file__).parent.absolute() / "7z") + "\\7z.exe"
 
 # Create a threading lock
 lock = threading.Lock()
@@ -248,6 +241,6 @@ def start_installer_gui(
                 logger.error(f"Failed to delete archive {file_path}: {e}")
 
         progress_callback(100)
-        return (is_archive_imported, False)
+        return is_archive_imported, False
     finally:
         install_mutex.unlock()
