@@ -6,7 +6,7 @@ from GUI.tab_view import MyTabView
 
 
 class App(QMainWindow):
-    local_version = "v0.9.2"
+    local_version = "v0.9.3"
 
     def __init__(self):
         super().__init__()
